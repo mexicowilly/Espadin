@@ -19,7 +19,7 @@ namespace espadin
  * if you believe your memory leak analysis tools when they tell 
  * you that static objects that live the life of the application 
  * are memory leaks. You should also use this function if you 
- * are using Chucho as a shared object or within an enclosing 
+ * are using Espadin as a shared object or within an enclosing
  * shared object. 
  *  
  * Included by @p <espadin/finalize.hpp>.
