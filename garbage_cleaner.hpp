@@ -15,7 +15,7 @@ public:
 
     static garbage_cleaner& get();
 
-    ~garbage_cleaner();
+    virtual ~garbage_cleaner();
 
     void add(cleaner_type cln);
 

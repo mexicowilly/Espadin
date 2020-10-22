@@ -2,7 +2,7 @@
 #define ESPADIN_CURL_HPP__
 
 #include <espadin/export.hpp>
-#include <chucho/logger.hpp>
+#include <chucho/loggable.hpp>
 #include <curl/curl.h>
 #include <cstdint>
 #include <string>
@@ -13,7 +13,7 @@
 namespace espadin
 {
 
-class ESPADIN_PRIV_EXPORT curl
+class ESPADIN_PRIV_EXPORT curl : public chucho::loggable<curl>
 {
 public:
     static bool get_ssl_supported();
@@ -46,7 +46,6 @@ private:
     bool verbose_;
     mutable std::mutex guard_;
     std::vector<std::unique_ptr<curl_slist, void(*)(curl_slist*)>> slists_;
-    std::shared_ptr<chucho::logger> lgr_;
 };
 
 inline CURL* curl::get() const

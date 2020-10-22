@@ -24,14 +24,13 @@ int curl_debug_callback(CURL* crl,
                         std::size_t num,
                         void* user_data)
 {
-    CHUCHO_DEBUG(static_cast<curl*>(user_data)->lgr_, std::string(text, num));
+    CHUCHO_DEBUG(static_cast<curl*>(user_data)->get_logger(), std::string(text, num));
     return 0;
 }
 
 curl::curl()
     : curl_(nullptr),
-      verbose_(false),
-      lgr_(chucho::logger::get("espadin.curl"))
+      verbose_(false)
 {
     std::call_once(global_once, global_setup);
     curl_ = curl_easy_init();
