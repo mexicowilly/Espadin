@@ -3,6 +3,7 @@
 
 #include "cJSON.h"
 #include <string>
+#include <chrono>
 
 namespace espadin
 {
@@ -16,6 +17,9 @@ void set_bool(const cJSON& json,
 void set_string(const cJSON& json,
                 const char* const name,
                 std::string& to_set);
+void set_time(const cJSON& json,
+              const char* const name,
+              std::chrono::system_clock::time_point& to_set);
 
 }
 

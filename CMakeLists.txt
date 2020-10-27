@@ -16,9 +16,11 @@ LIST(APPEND ESPADIN_PUBLIC_HEADERS
      include/espadin/capabilities.hpp
      "${CMAKE_BINARY_DIR}/espadin/export.hpp"
      include/espadin/finalize.hpp
+     include/espadin/permission.hpp
      include/espadin/user.hpp)
 
 LIST(APPEND ESPADIN_SOURCES
+     calendar.hpp
      capabilities.cpp
      cJSON.c
      cJSON.h
@@ -31,8 +33,14 @@ LIST(APPEND ESPADIN_SOURCES
      finalize.cpp
      garbage_cleaner.cpp
      garbage_cleaner.hpp
+     permission.cpp
      user.cpp
      ${ESPADIN_PUBLIC_HEADERS})
+
+IF(ESPADIN_POSIX)
+    LIST(APPEND ESPADIN_SOURCES
+         platform/posix/calendar_posix.cpp)
+ENDIF()
 
 IF(ENABLE_SHARED)
     ADD_LIBRARY(espadin SHARED ${ESPADIN_SOURCES})
