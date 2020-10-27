@@ -13,15 +13,25 @@ INCLUDE_DIRECTORIES(include
                     "${ESPADIN_CHUCHO_INCLUDE_DIR}")
 
 LIST(APPEND ESPADIN_PUBLIC_HEADERS
+     include/espadin/capabilities.hpp
      "${CMAKE_BINARY_DIR}/espadin/export.hpp"
-     include/espadin/finalize.hpp)
+     include/espadin/finalize.hpp
+     include/espadin/user.hpp)
 
 LIST(APPEND ESPADIN_SOURCES
+     capabilities.cpp
+     cJSON.c
+     cJSON.h
+     cjson_doc.cpp
+     cjson_doc.hpp
+     cjson_util.cpp
+     cjson_util.hpp
      curl.cpp
      curl.hpp
      finalize.cpp
      garbage_cleaner.cpp
      garbage_cleaner.hpp
+     user.cpp
      ${ESPADIN_PUBLIC_HEADERS})
 
 IF(ENABLE_SHARED)

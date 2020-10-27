@@ -2,6 +2,7 @@
 #define ESPADIN_CURL_HPP__
 
 #include <espadin/export.hpp>
+#include "cjson_doc.hpp"
 #include <chucho/loggable.hpp>
 #include <curl/curl.h>
 #include <cstdint>
@@ -22,9 +23,7 @@ public:
     virtual ~curl();
 
     curl_slist* create_slist(std::vector<std::string>&& items0);
-    CURL* get() const;
-    std::mutex& get_guard();
-    bool get_verbose() const;
+    std::unique_ptr<cjson::doc> perform();
     template<typename arg_type>
     void set_option(CURLoption opt, arg_type arg, const char* const err_msg);
     void set_verbose(bool state);
@@ -44,19 +43,8 @@ private:
 
     CURL* curl_;
     bool verbose_;
-    mutable std::mutex guard_;
     std::vector<std::unique_ptr<curl_slist, void(*)(curl_slist*)>> slists_;
 };
-
-inline CURL* curl::get() const
-{
-    return curl_;
-}
-
-inline std::mutex& curl::get_guard()
-{
-    return guard_;
-}
 
 template<typename arg_type>
 void curl::set_option(CURLoption opt, arg_type arg, const char* const err_msg)

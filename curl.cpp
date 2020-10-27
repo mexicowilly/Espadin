@@ -13,6 +13,14 @@ void global_setup()
     espadin::garbage_cleaner::get().add([] () { curl_global_cleanup(); });
 }
 
+std::size_t written_callback(char* data, std::size_t sz, std::size_t num, void* user)
+{
+    auto str = reinterpret_cast<std::string*>(user);
+    auto total = sz * num;
+    str->append(data, total);
+    return total;
+}
+
 }
 
 namespace espadin
@@ -36,6 +44,7 @@ curl::curl()
     curl_ = curl_easy_init();
     if (curl_ == nullptr)
         throw std::runtime_error("Could not initialize libcurl");
+    set_option(CURLOPT_WRITEFUNCTION, written_callback, "write funtion");
 }
 
 curl::~curl()
@@ -66,15 +75,18 @@ bool curl::get_ssl_supported()
     return (ver->features & CURL_VERSION_SSL) != 0;
 }
 
-bool curl::get_verbose() const
+std::unique_ptr<cjson::doc> curl::perform()
 {
-    std::lock_guard<std::mutex> lock(guard_);
-    return verbose_;
+    std::string written;
+    set_option(CURLOPT_WRITEDATA, &written, "write data");
+    auto rc = curl_easy_perform(curl_);
+    if (rc != CURLE_OK)
+        throw curl_exception(rc, "Could not perform CURL operation");
+    return std::move(std::make_unique<cjson::doc>(written));
 }
 
 void curl::set_verbose(bool state)
 {
-    std::lock_guard<std::mutex> lock(guard_);
     if (state && !verbose_)
     {
         set_option(CURLOPT_DEBUGFUNCTION, curl_debug_callback, "debug callback");
