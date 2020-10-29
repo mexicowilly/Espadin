@@ -14,14 +14,22 @@ INCLUDE_DIRECTORIES(include
 
 LIST(APPEND ESPADIN_PUBLIC_HEADERS
      include/espadin/capabilities.hpp
+     include/espadin/content_hints.hpp
+     include/espadin/content_restrictions.hpp
      "${CMAKE_BINARY_DIR}/espadin/export.hpp"
+     include/espadin/file.hpp
      include/espadin/finalize.hpp
+     include/espadin/image_media_metadata.hpp
      include/espadin/permission.hpp
-     include/espadin/user.hpp)
+     include/espadin/shortcut_details.hpp
+     include/espadin/user.hpp
+     include/espadin/video_media_metadata.hpp)
 
 LIST(APPEND ESPADIN_SOURCES
      calendar.hpp
      capabilities.cpp
+     content_hints.cpp
+     content_restrictions.cpp
      cJSON.c
      cJSON.h
      cjson_doc.cpp
@@ -30,11 +38,15 @@ LIST(APPEND ESPADIN_SOURCES
      cjson_util.hpp
      curl.cpp
      curl.hpp
+     file.cpp
      finalize.cpp
      garbage_cleaner.cpp
      garbage_cleaner.hpp
+     image_media_metadata.cpp
      permission.cpp
+     shortcut_details.cpp
      user.cpp
+     video_media_metadata.cpp
      ${ESPADIN_PUBLIC_HEADERS})
 
 IF(ESPADIN_POSIX)
