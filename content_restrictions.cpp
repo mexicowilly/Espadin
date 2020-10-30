@@ -8,7 +8,7 @@ content_restrictions::content_restrictions(const cJSON& json)
 {
     cjson::set_bool(json, "readOnly", read_only_);
     cjson::set_string(json, "reason", reason_);
-    auto user_obj = cJSON_GetObjectItem(&json, "restrictingUser");
+    auto user_obj = cJSON_GetObjectItemCaseSensitive(&json, "restrictingUser");
     if (user_obj != nullptr)
     {
         if (cJSON_IsObject(user_obj))

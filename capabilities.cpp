@@ -45,7 +45,7 @@ capabilities::capabilities(const cJSON& json)
 
 void capabilities::set_value(const cJSON& json, const char* const name, item it)
 {
-    auto bool_obj = cJSON_GetObjectItem(&json, name);
+    auto bool_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
     if (bool_obj != nullptr)
     {
         if (cJSON_IsBool(bool_obj))

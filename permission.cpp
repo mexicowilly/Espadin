@@ -18,13 +18,14 @@ permission::permission(const cJSON& json)
     cjson::set_string(json, "displayName", display_name_);
     cjson::set_string(json, "photoLink", photo_link_);
     cjson::set_time(json, "expirationTime", expiration_time_);
-    auto details_obj = cJSON_GetObjectItem(&json, "permissionDetails");
+    auto details_obj = cJSON_GetObjectItemCaseSensitive(&json, "permissionDetails");
     if (details_obj != nullptr)
     {
         if (cJSON_IsArray(details_obj))
         {
-            for (int i = 0; i < cJSON_GetArraySize(details_obj); i++)
-                permission_details_.emplace_back(*cJSON_GetArrayItem(details_obj, i));
+            cJSON* item;
+            cJSON_ArrayForEach(item, details_obj)
+                permission_details_.emplace_back(*item);
         }
         else
         {

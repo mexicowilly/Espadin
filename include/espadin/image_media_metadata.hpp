@@ -39,10 +39,10 @@ public:
     double exposure_time() const;
     bool flash_used() const;
     double focal_length() const;
+    const std::optional<location>& get_location() const;
     int height() const;
     int iso_speed() const;
     const std::string& lens() const;
-    const std::optional<location>& location_() const;
     double max_aperture_value() const;
     const std::string& metering_mode() const;
     int rotation() const;
@@ -121,6 +121,11 @@ inline double image_media_metadata::focal_length() const
     return focal_length_;
 }
 
+inline const std::optional<image_media_metadata::location>& image_media_metadata::get_location() const
+{
+    return loc_;
+}
+
 inline int image_media_metadata::height() const
 {
     return height_;
@@ -134,11 +139,6 @@ inline int image_media_metadata::iso_speed() const
 inline const std::string& image_media_metadata::lens() const
 {
     return lens_;
-}
-
-inline const std::optional<image_media_metadata::location>& image_media_metadata::location_() const
-{
-    return loc_;
 }
 
 inline double image_media_metadata::max_aperture_value() const

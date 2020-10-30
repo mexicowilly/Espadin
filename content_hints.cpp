@@ -6,7 +6,7 @@ namespace espadin
 
 content_hints::content_hints(const cJSON& json)
 {
-    auto thumb_obj = cJSON_GetObjectItem(&json, "thumbnail");
+    auto thumb_obj = cJSON_GetObjectItemCaseSensitive(&json, "thumbnail");
     if (thumb_obj != nullptr)
     {
         if (cJSON_IsObject(thumb_obj))

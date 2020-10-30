@@ -9,7 +9,7 @@ image_media_metadata::image_media_metadata(const cJSON& json)
     cjson::set_number(json, "width", width_);
     cjson::set_number(json, "height", height_);
     cjson::set_number(json, "rotation", rotation_);
-    auto loc_obj = cJSON_GetObjectItem(&json, "location");
+    auto loc_obj = cJSON_GetObjectItemCaseSensitive(&json, "location");
     if (loc_obj != nullptr)
     {
         if (cJSON_IsObject(loc_obj))
