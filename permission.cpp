@@ -7,39 +7,28 @@ namespace espadin
 
 permission::permission(const cJSON& json)
 {
-    cjson::set_string(json, "kind", kind_);
-    cjson::set_string(json, "id", id_);
-    cjson::set_string(json, "type", type_);
-    cjson::set_string(json, "emailAddress", email_address_);
-    cjson::set_string(json, "domain", domain_);
-    cjson::set_string(json, "role", role_);
-    cjson::set_string(json, "view", view_);
-    cjson::set_bool(json, "allowFileDiscovery", allow_file_discovery_);
-    cjson::set_string(json, "displayName", display_name_);
-    cjson::set_string(json, "photoLink", photo_link_);
-    cjson::set_time(json, "expirationTime", expiration_time_);
-    auto details_obj = cJSON_GetObjectItemCaseSensitive(&json, "permissionDetails");
-    if (details_obj != nullptr)
-    {
-        if (cJSON_IsArray(details_obj))
-        {
-            cJSON* item;
-            cJSON_ArrayForEach(item, details_obj)
-                permission_details_.emplace_back(*item);
-        }
-        else
-        {
-            throw std::runtime_error("The JSON 'permissionDetails' is not an array");
-        }
-    }
+    cjson::util ju(json);
+    ju.set_string("kind", kind_);
+    ju.set_string("id", id_);
+    ju.set_string("type", type_);
+    ju.set_string("emailAddress", email_address_);
+    ju.set_string("domain", domain_);
+    ju.set_string("role", role_);
+    ju.set_string("view", view_);
+    ju.set_bool("allowFileDiscovery", allow_file_discovery_);
+    ju.set_string("displayName", display_name_);
+    ju.set_string("photoLink", photo_link_);
+    ju.set_time("expirationTime", expiration_time_);
+    ju.set_object_vector("permissionDetails", permission_details_);
 }
 
 permission::details::details(const cJSON& json)
 {
-    cjson::set_string(json, "permissionType", permission_type_);
-    cjson::set_string(json, "role", role_);
-    cjson::set_string(json, "inheritedFrom", inherited_from_);
-    cjson::set_bool(json, "inherited", inherited_);
+    cjson::util ju(json);
+    ju.set_string("permissionType", permission_type_);
+    ju.set_string("role", role_);
+    ju.set_string("inheritedFrom", inherited_from_);
+    ju.set_bool("inherited", inherited_);
 }
 
 }

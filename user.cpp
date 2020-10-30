@@ -6,12 +6,13 @@ namespace espadin
 
 user::user(const cJSON& json)
 {
-    cjson::set_string(json, "kind", kind_);
-    cjson::set_string(json, "displayName", display_name_);
-    cjson::set_string(json, "photoLink", photo_link_);
-    cjson::set_bool(json, "me", me_);
-    cjson::set_string(json, "permissionId", permission_id_);
-    cjson::set_string(json, "emailAddress", email_address_);
+    cjson::util ju(json);
+    ju.set_string("kind", kind_);
+    ju.set_string("displayName", display_name_);
+    ju.set_string("photoLink", photo_link_);
+    ju.set_bool("me", me_);
+    ju.set_string("permissionId", permission_id_);
+    ju.set_string("emailAddress", email_address_);
 }
 
 }

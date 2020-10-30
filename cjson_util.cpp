@@ -55,12 +55,11 @@ namespace espadin
 namespace cjson
 {
 
-void set_bool(const cJSON& json,
-              const char* const name,
-              bool& to_set)
+void util::set_bool(const char* const name,
+                    bool& to_set)
 {
     to_set = false;
-    auto bool_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
+    auto bool_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (bool_obj != nullptr)
     {
         if (cJSON_IsBool(bool_obj))
@@ -70,11 +69,10 @@ void set_bool(const cJSON& json,
     }
 }
 
-void set_bytes(const cJSON& json,
-               const char* const name,
-               std::vector<std::byte>& to_set)
+void util::set_bytes(const char* const name,
+                     std::vector<std::byte>& to_set)
 {
-    auto str_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
+    auto str_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (str_obj != nullptr)
     {
         if (cJSON_IsString(str_obj))
@@ -84,12 +82,11 @@ void set_bytes(const cJSON& json,
     }
 }
 
-void set_map(const cJSON& json,
-             const char* const name,
-             std::map<std::string, std::string>& to_set)
+void util::set_map(const char* const name,
+                   std::map<std::string, std::string>& to_set)
 {
     to_set.clear();
-    auto map_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
+    auto map_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (map_obj != nullptr)
     {
         if (cJSON_IsObject(map_obj))
@@ -110,12 +107,11 @@ void set_map(const cJSON& json,
     }
 }
 
-void set_string(const cJSON& json,
-                const char* const name,
-                std::string& to_set)
+void util::set_string(const char* const name,
+                      std::string& to_set)
 {
     to_set.clear();
-    auto str_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
+    auto str_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (str_obj != nullptr)
     {
         if (cJSON_IsString(str_obj))
@@ -125,12 +121,11 @@ void set_string(const cJSON& json,
     }
 }
 
-void set_string_vector(const cJSON& json,
-                       const char* const name,
-                       std::vector<std::string>& to_set)
+void util::set_string_vector(const char* const name,
+                             std::vector<std::string>& to_set)
 {
     to_set.clear();
-    auto array_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
+    auto array_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (array_obj != nullptr)
     {
         if (cJSON_IsArray(array_obj))
@@ -151,12 +146,11 @@ void set_string_vector(const cJSON& json,
     }
 }
 
-void set_time(const cJSON& json,
-              const char* const name,
-              std::chrono::system_clock::time_point& to_set)
+void util::set_time(const char* const name,
+                    std::chrono::system_clock::time_point& to_set)
 {
     to_set = std::chrono::system_clock::time_point();
-    auto str_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
+    auto str_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (str_obj != nullptr)
     {
         if (cJSON_IsString(str_obj))

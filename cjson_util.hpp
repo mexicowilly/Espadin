@@ -14,44 +14,43 @@ namespace espadin
 namespace cjson
 {
 
-void set_bool(const cJSON& json,
-              const char* const name,
-              bool& to_set);
-void set_bytes(const cJSON& json,
-               const char* const name,
-               std::vector<std::byte>& to_set);
-void set_map(const cJSON& json,
-             const char* const name,
-             std::map<std::string, std::string>& to_set);
-template <typename type>
-void set_number(const cJSON& json,
-                const char* const name,
-                type& to_set);
-template <typename type>
-void set_object(const cJSON& json,
-                const char* const name,
-                std::optional<type>& to_set);
-template <typename type>
-void set_object_vector(const cJSON& json,
-                       const char* const name,
-                       std::vector<type>& to_set);
-void set_string(const cJSON& json,
-                const char* const name,
-                std::string& to_set);
-void set_string_vector(const cJSON& json,
-                       const char* const name,
-                       std::vector<std::string>& to_set);
-void set_time(const cJSON& json,
-              const char* const name,
-              std::chrono::system_clock::time_point& to_set);
+class util
+{
+public:
+    util(const cJSON& json);
+
+    void set_bool(const char* const name,
+                  bool& to_set);
+    void set_bytes(const char* const name,
+                   std::vector<std::byte>& to_set);
+    void set_map(const char* const name,
+                 std::map<std::string, std::string>& to_set);
+    template <typename type>
+    void set_number(const char* const name,
+                    type& to_set);
+    template <typename type>
+    void set_object(const char* const name,
+                    std::optional<type>& to_set);
+    template <typename type>
+    void set_object_vector(const char* const name,
+                           std::vector<type>& to_set);
+    void set_string(const char* const name,
+                    std::string& to_set);
+    void set_string_vector(const char* const name,
+                           std::vector<std::string>& to_set);
+    void set_time(const char* const name,
+                  std::chrono::system_clock::time_point& to_set);
+private:
+    const cJSON& json_;
+};
+
 
 template <typename type>
-void set_number(const cJSON& json,
-                const char* const name,
-                type& to_set)
+void util::set_number(const char* const name,
+                      type& to_set)
 {
     to_set = 0;
-    auto num_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
+    auto num_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (num_obj != nullptr)
     {
         if (cJSON_IsNumber(num_obj))
@@ -62,12 +61,11 @@ void set_number(const cJSON& json,
 }
 
 template <typename type>
-void set_object(const cJSON& json,
-                 const char* const name,
-                 std::optional<type>& to_set)
+void util::set_object(const char* const name,
+                      std::optional<type>& to_set)
 {
     to_set.reset();
-    auto obj_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
+    auto obj_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (obj_obj != nullptr)
     {
         if (cJSON_IsObject(obj_obj))
@@ -78,12 +76,11 @@ void set_object(const cJSON& json,
 }
 
 template <typename type>
-void set_object_vector(const cJSON& json,
-                       const char* const name,
-                       std::vector<type>& to_set)
+void util::set_object_vector(const char* const name,
+                             std::vector<type>& to_set)
 {
     to_set.clear();
-    auto array_obj = cJSON_GetObjectItemCaseSensitive(&json, "owners");
+    auto array_obj = cJSON_GetObjectItemCaseSensitive(&json_, "owners");
     if (array_obj != nullptr)
     {
         if (cJSON_IsArray(array_obj))

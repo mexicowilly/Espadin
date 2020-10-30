@@ -6,9 +6,10 @@ namespace espadin
 
 video_media_metadata::video_media_metadata(const cJSON& json)
 {
-    cjson::set_number(json, "width", width_);
-    cjson::set_number(json, "height", height_);
-    cjson::set_number(json, "durationMillis", duration_millis_);
+    cjson::util ju(json);
+    ju.set_number("width", width_);
+    ju.set_number("height", height_);
+    ju.set_number("durationMillis", duration_millis_);
 }
 
 }

@@ -11,15 +11,17 @@ content_hints::content_hints(const cJSON& json)
     {
         if (cJSON_IsObject(thumb_obj))
         {
-            cjson::set_bytes(*thumb_obj, "image", thumbnail_image_);
-            cjson::set_string(*thumb_obj, "mimeType", thumbnail_mime_type_);
+            cjson::util ju(*thumb_obj);
+            ju.set_bytes("image", thumbnail_image_);
+            ju.set_string("mimeType", thumbnail_mime_type_);
         }
         else
         {
             throw std::runtime_error("The JSON 'thumbnail' is not an object");
         }
     }
-    cjson::set_string(json, "indexableText", indexable_text_);
+    cjson::util ju(json);
+    ju.set_string("indexableText", indexable_text_);
 }
 
 }
