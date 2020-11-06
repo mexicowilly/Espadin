@@ -20,13 +20,13 @@ public:
 
     doc& operator=(const doc&) = delete;
 
-    cJSON* operator->();
+    cJSON* operator*();
 
 private:
     cJSON* json_;
 };
 
-inline cJSON* doc::operator->()
+inline cJSON* doc::operator*()
 {
     return json_;
 }

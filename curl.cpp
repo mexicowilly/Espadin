@@ -68,6 +68,15 @@ curl_slist* curl::create_slist(std::vector<std::string>&& items)
     return result;
 }
 
+std::string curl::escape(const std::string& str) const
+{
+    std::string result;
+    auto loc = curl_easy_escape(curl_, str.c_str(), str.length());
+    result = loc;
+    curl_free(loc);
+    return result;
+}
+
 bool curl::get_ssl_supported()
 {
     std::call_once(global_once, global_setup);

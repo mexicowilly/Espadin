@@ -23,6 +23,7 @@ public:
     virtual ~curl();
 
     curl_slist* create_slist(std::vector<std::string>&& items0);
+    std::string escape(const std::string& str) const;
     std::unique_ptr<cjson::doc> perform();
     template<typename arg_type>
     void set_option(CURLoption opt, arg_type arg, const char* const err_msg);
