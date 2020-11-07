@@ -22,11 +22,18 @@ public:
 
     cJSON* operator*();
 
+    cJSON* get();
+
 private:
     cJSON* json_;
 };
 
 inline cJSON* doc::operator*()
+{
+    return json_;
+}
+
+cJSON* doc::get()
 {
     return json_;
 }

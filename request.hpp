@@ -14,16 +14,16 @@ class request : public chucho::loggable<request>
 public:
     virtual ~request();
 
-    std::unique_ptr<cjson::doc> run();
 
 protected:
-    using variant_type = std::variant<std::string, int>;
+    using variant_type = std::variant<std::string, int, bool, std::size_t>;
 
     request(const std::string& access_token);
+
+    std::unique_ptr<cjson::doc> run_impl();
     virtual std::string url_stem() const = 0;
 
     std::map<std::string, variant_type> parameters_;
-
     curl curl_;
 
 private:

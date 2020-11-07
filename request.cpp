@@ -19,6 +19,7 @@ request::~request()
 std::string request::parameters_as_url() const
 {
     std::ostringstream stream;
+    stream << std::boolalpha;
     for (const auto& p : parameters_)
     {
         stream << p.first << '=';
@@ -31,7 +32,7 @@ std::string request::parameters_as_url() const
     return result;
 }
 
-std::unique_ptr<cjson::doc> request::run()
+std::unique_ptr<cjson::doc> request::run_impl()
 {
     std::string url(BASE_URL + url_stem());
     if (!parameters_.empty())

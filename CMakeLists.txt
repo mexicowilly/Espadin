@@ -16,9 +16,11 @@ LIST(APPEND ESPADIN_PUBLIC_HEADERS
      include/espadin/capabilities.hpp
      include/espadin/content_hints.hpp
      include/espadin/content_restrictions.hpp
+     include/espadin/drive.hpp
      include/espadin/exception.hpp
      "${CMAKE_BINARY_DIR}/espadin/export.hpp"
      include/espadin/file.hpp
+     include/espadin/files_group.hpp
      include/espadin/finalize.hpp
      include/espadin/image_media_metadata.hpp
      include/espadin/permission.hpp
@@ -40,7 +42,9 @@ LIST(APPEND ESPADIN_SOURCES
      curl.cpp
      curl.hpp
      exception.cpp
+     drive.cpp
      file.cpp
+     files_group.cpp
      finalize.cpp
      garbage_cleaner.cpp
      garbage_cleaner.hpp
