@@ -21,13 +21,13 @@ file::file(const cJSON& json)
     ju.set_map("properties", properties_);
     ju.set_map("appProperties", app_properties_);
     ju.set_string_vector("spaces", spaces_);
-    ju.set_number("version", version_);
+    ju.set_number_from_string("version", version_);
     ju.set_string("webContentLink", web_content_link_);
     ju.set_string("webViewLink", web_view_link_);
     ju.set_string("iconLink", icon_link_);
     ju.set_bool("hasThumbnail", has_thumbnail_);
     ju.set_string("thumbnailLink", thumbnail_link_);
-    ju.set_number("thumbnailVersion", thumbnail_version_);
+    ju.set_number_from_string("thumbnailVersion", thumbnail_version_);
     ju.set_bool("viewedByMe", viewed_by_me_);
     ju.set_time("viewedByMeTime", viewed_by_me_time_);
     ju.set_time("createdTime", created_time_);
@@ -53,8 +53,8 @@ file::file(const cJSON& json)
     ju.set_string("fullFileExtension", full_file_extension_);
     ju.set_string("fileExtension", file_extension_);
     ju.set_string("md5Checksum", md5_checksum_);
-    ju.set_number("size", size_);
-    ju.set_number("quotaBytesUsed", quota_bytes_used_);
+    ju.set_number_from_string("size", size_);
+    ju.set_number_from_string("quotaBytesUsed", quota_bytes_used_);
     ju.set_string("headRevisionId", head_revision_id_);
     ju.set_object("contentHints", content_hints_);
     ju.set_object("imageMediaMetadata", image_media_metadata_);

@@ -91,6 +91,7 @@ std::unique_ptr<cjson::doc> curl::perform()
     auto rc = curl_easy_perform(curl_);
     if (rc != CURLE_OK)
         throw curl_exception(rc, "Could not perform CURL operation");
+    CHUCHO_TRACE_L("Received reply: " << written);
     return std::move(std::make_unique<cjson::doc>(written));
 }
 

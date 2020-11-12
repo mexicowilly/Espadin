@@ -1,6 +1,7 @@
 #include "request.hpp"
 #include <espadin/exception.hpp>
 #include <sstream>
+#include <chucho/log.hpp>
 
 namespace espadin
 {
@@ -9,7 +10,9 @@ const std::string request::BASE_URL("https://www.googleapis.com/drive/v3/");
 
 request::request(const std::string& access_token)
 {
-    curl_.set_option(CURLOPT_XOAUTH2_BEARER, access_token.c_str(), "set Oauth2 bearer");
+    std::string auth("Authorization: Bearer " + access_token);
+    auto head = curl_.create_slist({auth});
+    curl_.set_option(CURLOPT_HTTPHEADER, head, "HTTP authorization header");
 }
 
 request::~request()
@@ -23,7 +26,11 @@ std::string request::parameters_as_url() const
     for (const auto& p : parameters_)
     {
         stream << p.first << '=';
-        std::visit([&stream](const auto& val) { stream << val; }, p.second);
+        auto strp = std::get_if<std::string>(&p.second);
+        if (strp != nullptr)
+            stream << curl_.escape(*strp);
+        else
+            std::visit([&stream](const auto& val) { stream << val; }, p.second);
         stream << '&';
     }
     auto result = stream.str();
@@ -36,12 +43,9 @@ std::unique_ptr<cjson::doc> request::run_impl()
 {
     std::string url(BASE_URL + url_stem());
     if (!parameters_.empty())
-    {
-        url += '?';
-        url += parameters_as_url();
-    }
-    auto esc = curl_.escape(url);
-    curl_.set_option(CURLOPT_URL, esc.c_str(), "set URL option");
+        url += '?' + parameters_as_url();
+    CHUCHO_TRACE_L("Request URL: '" << url << "'");
+    curl_.set_option(CURLOPT_URL, url.c_str(), "set URL option");
     auto result = curl_.perform();
     if (cJSON_HasObjectItem(**result, "error"))
         throw exception(***result);

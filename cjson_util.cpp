@@ -55,6 +55,11 @@ namespace espadin
 namespace cjson
 {
 
+util::util(const cJSON& json)
+    : json_(json)
+{
+}
+
 void util::set_bool(const char* const name,
                     bool& to_set)
 {

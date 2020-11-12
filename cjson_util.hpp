@@ -29,6 +29,9 @@ public:
     void set_number(const char* const name,
                     type& to_set);
     template <typename type>
+    void set_number_from_string(const char* const name,
+                                type& to_set);
+    template <typename type>
     void set_object(const char* const name,
                     std::optional<type>& to_set);
     template <typename type>
@@ -57,6 +60,21 @@ void util::set_number(const char* const name,
             to_set = num_obj->valuedouble;
         else
             throw std::runtime_error(std::string("JSON field '") + name + "' is not a number");
+    }
+}
+
+template <typename type>
+void util::set_number_from_string(const char* const name,
+                                  type& to_set)
+{
+    to_set = 0;
+    auto num_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
+    if (num_obj != nullptr)
+    {
+        if (cJSON_IsString(num_obj))
+            to_set = std::stol(num_obj->valuestring);
+        else
+            throw std::runtime_error(std::string("JSON field '") + name + "' is not a string");
     }
 }
 

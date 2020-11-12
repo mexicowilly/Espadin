@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.13.4)
 
-PROJECT(espadin CXX)
+PROJECT(espadin CXX C)
 
 SET(ESPADIN_MAJOR_VERSION 1)
 SET(ESPADIN_MINOR_VERSION 0)
@@ -94,4 +94,7 @@ ELSE()
 ENDIF()
 
 TARGET_LINK_LIBRARIES(espadin
-                      "${ESPADIN_CHUCHO_LIB}")
+                      "${ESPADIN_CHUCHO_LIB}"
+                      CURL::libcurl)
+
+ADD_SUBDIRECTORY(test)
