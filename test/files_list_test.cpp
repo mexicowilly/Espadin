@@ -8,13 +8,11 @@ TEST(files, list)
 {
     espadin::drive drv(ACCESS_TOKEN);
     auto fl = drv.files()->list();
-    fl->corpora("user")
-       .fields("files/id")
+    fl->fields("files/id")
        .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder'");
     auto reply = fl->run();
-    ASSERT_GT(reply->files().size(), 0);
-    std::string folder = reply->files()[0].id();
-    std::cout << "Found folder 'Espadin Test': " << folder << std::endl;
+    ASSERT_EQ(1, reply->files().size());
+    std::cout << "Found folder 'Espadin Test': " << reply->files()[0].id() << std::endl;
 //    do
 //    {
 //        reply = fl->run();
