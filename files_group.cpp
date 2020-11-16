@@ -124,6 +124,10 @@ std::unique_ptr<files_group::list_interface> files_group::list()
     return std::make_unique<list_impl>(drive_.access_token_);
 }
 
+files_group::list_interface::~list_interface()
+{
+}
+
 files_group::list_interface::reply::reply(const cJSON& json)
 {
     auto obj = cJSON_GetObjectItemCaseSensitive(&json, "kind");

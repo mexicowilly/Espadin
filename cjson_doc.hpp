@@ -33,7 +33,7 @@ inline cJSON* doc::operator*()
     return json_;
 }
 
-cJSON* doc::get()
+inline cJSON* doc::get()
 {
     return json_;
 }

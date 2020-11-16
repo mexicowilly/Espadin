@@ -56,11 +56,11 @@ public:
     const std::vector<std::string>& permission_ids() const;
     const std::vector<permission>& permissions() const;
     const std::map<std::string, std::string>& properties() const;
-    long quota_bytes_used() const;
+    std::size_t quota_bytes_used() const;
     bool shared() const;
     const std::chrono::system_clock::time_point& shared_with_me_time() const;
     const std::optional<user>& sharing_user() const;
-    long size() const;
+    std::size_t size() const;
     const std::vector<std::string>& spaces() const;
     bool starred() const;
     const std::string& team_drive_id() const;
@@ -123,8 +123,8 @@ private:
     std::string full_file_extension_;
     std::string file_extension_;
     std::string md5_checksum_;
-    long size_;
-    long quota_bytes_used_;
+    std::size_t size_;
+    std::size_t quota_bytes_used_;
     std::string head_revision_id_;
     std::optional<content_hints> content_hints_;
     std::optional<image_media_metadata> image_media_metadata_;
@@ -320,7 +320,7 @@ inline const std::map<std::string, std::string>& file::properties() const
     return properties_;
 }
 
-inline long file::quota_bytes_used() const
+inline std::size_t file::quota_bytes_used() const
 {
     return quota_bytes_used_;
 }
@@ -340,7 +340,7 @@ inline const std::optional<user>& file::sharing_user() const
     return sharing_user_;
 }
 
-inline long file::size() const
+inline std::size_t file::size() const
 {
     return size_;
 }

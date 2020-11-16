@@ -33,6 +33,8 @@ public:
             bool incomplete_search_;
         };
 
+        virtual ~list_interface();
+
         virtual list_interface& corpora(const std::string& str) = 0;
         virtual list_interface& drive_id(const std::string& str) = 0;
         virtual list_interface& fields(const std::string& str) = 0;
