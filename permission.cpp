@@ -1,6 +1,5 @@
 #include <espadin/permission.hpp>
 #include "cjson_util.hpp"
-#include <stdexcept>
 
 namespace espadin
 {

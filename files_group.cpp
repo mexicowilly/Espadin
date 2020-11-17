@@ -7,7 +7,7 @@ namespace
 
 const std::string FILES_URL_BASE("files");
 
-class list_impl : public espadin::files_group::list_interface, public espadin::request
+class list_impl : public espadin::files_group::list_interface, public espadin::get_request
 {
 public:
     list_impl(const std::string& access_token);
@@ -28,7 +28,7 @@ public:
 };
 
 list_impl::list_impl(const std::string& access_token)
-    : espadin::request(access_token)
+    : espadin::get_request(access_token)
 {
 }
 

@@ -61,9 +61,9 @@ util::util(const cJSON& json)
 }
 
 void util::set_bool(const char* const name,
-                    bool& to_set)
+                    std::optional<bool>& to_set)
 {
-    to_set = false;
+    to_set.reset();
     auto bool_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (bool_obj != nullptr)
     {
@@ -75,32 +75,39 @@ void util::set_bool(const char* const name,
 }
 
 void util::set_bytes(const char* const name,
-                     std::vector<std::byte>& to_set)
+                     std::optional<std::vector<std::byte>>& to_set)
 {
+    to_set.reset();
     auto str_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (str_obj != nullptr)
     {
         if (cJSON_IsString(str_obj))
-            base64_decode(str_obj->valuestring, to_set);
+        {
+            to_set.emplace();
+            base64_decode(str_obj->valuestring, *to_set);
+        }
         else
+        {
             throw std::runtime_error(std::string("JSON field '") + name + "' is not a string");
+        }
     }
 }
 
 void util::set_map(const char* const name,
-                   std::map<std::string, std::string>& to_set)
+                   std::optional<std::map<std::string, std::string>>& to_set)
 {
-    to_set.clear();
+    to_set.reset();
     auto map_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (map_obj != nullptr)
     {
         if (cJSON_IsObject(map_obj))
         {
+            to_set.emplace();
             cJSON* item;
             cJSON_ArrayForEach(item, map_obj)
             {
                 if (cJSON_IsString(item))
-                    to_set[item->string] = item->valuestring;
+                    (*to_set)[item->string] = item->valuestring;
                 else
                     throw std::runtime_error(std::string("The child of '") + name + "' item '" + item->string + "' is not a string");
             }
@@ -113,9 +120,9 @@ void util::set_map(const char* const name,
 }
 
 void util::set_string(const char* const name,
-                      std::string& to_set)
+                      std::optional<std::string>& to_set)
 {
-    to_set.clear();
+    to_set.reset();
     auto str_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (str_obj != nullptr)
     {
@@ -127,19 +134,20 @@ void util::set_string(const char* const name,
 }
 
 void util::set_string_vector(const char* const name,
-                             std::vector<std::string>& to_set)
+                             std::optional<std::vector<std::string>>& to_set)
 {
-    to_set.clear();
+    to_set.reset();
     auto array_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (array_obj != nullptr)
     {
         if (cJSON_IsArray(array_obj))
         {
+            to_set.emplace();
             cJSON* item;
             cJSON_ArrayForEach(item, array_obj)
             {
                 if (cJSON_IsString(item))
-                    to_set.emplace_back(item->valuestring);
+                    to_set->emplace_back(item->valuestring);
                 else
                     throw std::runtime_error(std::string("The JSON child of parent '") + name + "' is not a string");
             }
@@ -152,9 +160,9 @@ void util::set_string_vector(const char* const name,
 }
 
 void util::set_time(const char* const name,
-                    std::chrono::system_clock::time_point& to_set)
+                    std::optional<std::chrono::system_clock::time_point>& to_set)
 {
-    to_set = std::chrono::system_clock::time_point();
+    to_set.reset();
     auto str_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (str_obj != nullptr)
     {

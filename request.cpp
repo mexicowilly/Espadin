@@ -58,4 +58,10 @@ get_request::get_request(const std::string& access_token)
     curl_.set_option(CURLOPT_HTTPGET, 1, "set HTTP get");
 }
 
+post_request::post_request(const std::string& access_token)
+    : request(access_token)
+{
+    curl_.set_option(CURLOPT_POST, 1, "set HTTP post");
+}
+
 }

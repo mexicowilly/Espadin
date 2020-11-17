@@ -3,6 +3,7 @@
 
 #include <espadin/export.hpp>
 #include <string>
+#include <optional>
 
 struct cJSON;
 
@@ -14,20 +15,20 @@ class ESPADIN_EXPORT shortcut_details
 public:
     shortcut_details(const cJSON& json);
 
-    const std::string& target_id() const;
-    const std::string& target_mime_type() const;
+    const std::optional<std::string>& target_id() const;
+    const std::optional<std::string>& target_mime_type() const;
 
 private:
-    std::string target_id_;
-    std::string target_mime_type_;
+    std::optional<std::string> target_id_;
+    std::optional<std::string> target_mime_type_;
 };
 
-inline const std::string& shortcut_details::target_id() const
+inline const std::optional<std::string>& shortcut_details::target_id() const
 {
     return target_id_;
 }
 
-inline const std::string& shortcut_details::target_mime_type() const
+inline const std::optional<std::string>& shortcut_details::target_mime_type() const
 {
     return target_mime_type_;
 }

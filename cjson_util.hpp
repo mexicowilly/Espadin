@@ -20,11 +20,11 @@ public:
     util(const cJSON& json);
 
     void set_bool(const char* const name,
-                  bool& to_set);
+                  std::optional<bool>& to_set);
     void set_bytes(const char* const name,
-                   std::vector<std::byte>& to_set);
+                   std::optional<std::vector<std::byte>>& to_set);
     void set_map(const char* const name,
-                 std::map<std::string, std::string>& to_set);
+                 std::optional<std::map<std::string, std::string>>& to_set);
     template <typename type>
     void set_number(const char* const name,
                     type& to_set);
@@ -36,13 +36,13 @@ public:
                     std::optional<type>& to_set);
     template <typename type>
     void set_object_vector(const char* const name,
-                           std::vector<type>& to_set);
+                           std::optional<std::vector<type>>& to_set);
     void set_string(const char* const name,
-                    std::string& to_set);
+                    std::optional<std::string>& to_set);
     void set_string_vector(const char* const name,
-                           std::vector<std::string>& to_set);
+                           std::optional<std::vector<std::string>>& to_set);
     void set_time(const char* const name,
-                  std::chrono::system_clock::time_point& to_set);
+                  std::optional<std::chrono::system_clock::time_point>& to_set);
 private:
     const cJSON& json_;
 };
@@ -52,7 +52,7 @@ template <typename type>
 void util::set_number(const char* const name,
                       type& to_set)
 {
-    to_set = 0;
+    to_set.reset();
     auto num_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (num_obj != nullptr)
     {
@@ -67,7 +67,7 @@ template <typename type>
 void util::set_number_from_string(const char* const name,
                                   type& to_set)
 {
-    to_set = 0;
+    to_set.reset();
     auto num_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (num_obj != nullptr)
     {
@@ -95,19 +95,20 @@ void util::set_object(const char* const name,
 
 template <typename type>
 void util::set_object_vector(const char* const name,
-                             std::vector<type>& to_set)
+                             std::optional<std::vector<type>>& to_set)
 {
-    to_set.clear();
+    to_set.reset();
     auto array_obj = cJSON_GetObjectItemCaseSensitive(&json_, "owners");
     if (array_obj != nullptr)
     {
         if (cJSON_IsArray(array_obj))
         {
+            to_set.emplace();
             cJSON* item;
             cJSON_ArrayForEach(item, array_obj)
             {
                 if (cJSON_IsObject(item))
-                    to_set.emplace_back(*item);
+                    to_set->emplace_back(*item);
                 else
                     throw std::runtime_error(std::string("The child of '") + name + "' is not an object");
             }

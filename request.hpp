@@ -34,8 +34,14 @@ private:
 
 class get_request : public request
 {
-public:
+protected:
     get_request(const std::string& access_token);
+};
+
+class post_request : public request
+{
+protected:
+    post_request(const std::string& access_token);
 };
 
 }
