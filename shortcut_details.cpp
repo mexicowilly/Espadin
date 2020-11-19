@@ -11,4 +11,10 @@ shortcut_details::shortcut_details(const cJSON& json)
     ju.set_string("targetMimeType", target_mime_type_);
 }
 
+void shortcut_details::to_json(cJSON& json)
+{
+    if (target_id_)
+        cJSON_AddStringToObject(&json, "targetId", target_id_.value().c_str());
+}
+
 }

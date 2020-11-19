@@ -62,7 +62,7 @@ file::file(const cJSON& json)
     ju.set_bool("isAppAuthorized", is_app_authorized_);
     ju.set_map("exportLinks", export_links_);
     ju.set_object("shortcutDetails", shortcut_details_);
-    ju.set_object("contentRestrictions", content_restrictions_);
+    ju.set_object_vector("contentRestrictions", content_restrictions_);
 }
 
 }
