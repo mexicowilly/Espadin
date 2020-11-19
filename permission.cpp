@@ -6,7 +6,7 @@ namespace espadin
 
 permission::permission(const cJSON& json)
 {
-    cjson::util ju(json);
+    cjson::util ju(const_cast<cJSON&>(json));
     ju.set_string("kind", kind_);
     ju.set_string("id", id_);
     ju.set_string("type", type_);
@@ -23,7 +23,7 @@ permission::permission(const cJSON& json)
 
 permission::details::details(const cJSON& json)
 {
-    cjson::util ju(json);
+    cjson::util ju(const_cast<cJSON&>(json));
     ju.set_string("permissionType", permission_type_);
     ju.set_string("role", role_);
     ju.set_string("inheritedFrom", inherited_from_);

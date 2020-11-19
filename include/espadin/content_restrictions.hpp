@@ -20,7 +20,7 @@ public:
     content_restrictions& reason(const std::string& txt);
     const std::optional<user>& restricting_user() const;
     const std::optional<std::chrono::system_clock::time_point>& restriction_time() const;
-    void to_json(cJSON& json);
+    void to_json(cJSON& json) const;
     const std::optional<std::string>& type() const;
 
 private:

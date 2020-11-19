@@ -21,14 +21,14 @@ content_hints::content_hints(const cJSON& json)
             throw std::runtime_error("The JSON 'thumbnail' is not an object");
         }
     }
-    cjson::util ju(json);
+    cjson::util ju(const_cast<cJSON&>(json));
     ju.set_string("indexableText", indexable_text_);
 }
 
 void content_hints::to_json(cJSON& json) const
 {
-    if (indexable_text_)
-        cJSON_AddStringToObject(&json, "indexableText", indexable_text_.value().c_str());
+    cjson::util ju(json);
+    ju.add_string("indexableText", indexable_text_);
     if (thumbnail_image_ || thumbnail_mime_type_)
     {
         auto sub = cJSON_CreateObject();

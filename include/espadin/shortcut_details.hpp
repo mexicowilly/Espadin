@@ -19,7 +19,7 @@ public:
     const std::optional<std::string>& target_id() const;
     shortcut_details& target_id(const std::string& tid);
     const std::optional<std::string>& target_mime_type() const;
-    void to_json(cJSON& json);
+    void to_json(cJSON& json) const;
 
 private:
     std::optional<std::string> target_id_;

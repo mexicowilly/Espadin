@@ -12,9 +12,62 @@ namespace espadin
 namespace cjson
 {
 
-util::util(const cJSON& json)
+util::util(cJSON& json)
     : json_(json)
 {
+}
+
+void util::add_bool(const char* const name,
+                    const std::optional<bool>& to_add)
+{
+    if (to_add)
+        cJSON_AddBoolToObject(&json_, name, to_add.value() ? cJSON_True : cJSON_False);
+}
+
+void util::add_map(const char* const name,
+                   const std::optional<std::map<std::string, std::string>>& to_add)
+{
+    if (to_add && !to_add->empty())
+    {
+        auto obj = cJSON_CreateObject();
+        for (const auto& p : *to_add)
+            cJSON_AddStringToObject(obj, p.first.c_str(), p.second.c_str());
+        cJSON_AddItemToObject(&json_, name, obj);
+    }
+}
+
+void util::add_string(const char* const name,
+                      const std::optional<std::string>& to_add)
+{
+    if (to_add)
+        cJSON_AddStringToObject(&json_, name, to_add->c_str());
+}
+
+void util::add_string_vector(const char* const name,
+                             const std::optional<std::vector<std::string>>& to_add)
+{
+    if (to_add && !to_add->empty())
+    {
+        auto arr = cJSON_CreateArray();
+        for (const auto& s : *to_add)
+        {
+            auto str = cJSON_CreateString(s.c_str());
+            cJSON_AddItemToArray(arr, str);
+        }
+        cJSON_AddItemToObject(&json_, name, arr);
+    }
+}
+
+void util::add_time(const char* const name,
+                    const std::optional<std::chrono::system_clock::time_point>& to_add)
+{
+    if (to_add)
+    {
+        auto pieces = calendar::get_pieces(std::chrono::system_clock::to_time_t(*to_add));
+        std::ostringstream stream;
+        stream << std::put_time(&pieces, "%FT%T.000Z");
+        cJSON_AddStringToObject(&json_, name, stream.str().c_str());
+    }
 }
 
 void util::set_bool(const char* const name,

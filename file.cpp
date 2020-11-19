@@ -6,7 +6,7 @@ namespace espadin
 
 file::file(const cJSON& json)
 {
-    cjson::util ju(json);
+    cjson::util ju(const_cast<cJSON&>(json));
     ju.set_string("kind", kind_);
     ju.set_string("id", id_);
     ju.set_string("name", name_);
@@ -63,6 +63,28 @@ file::file(const cJSON& json)
     ju.set_map("exportLinks", export_links_);
     ju.set_object("shortcutDetails", shortcut_details_);
     ju.set_object_vector("contentRestrictions", content_restrictions_);
+}
+
+void file::to_json(cJSON& json)
+{
+    cjson::util ju(json);
+    ju.add_map("appProperties", app_properties_);
+    ju.add_bool("copyRequiresWriterPermission", copy_requires_writer_permission_);
+    ju.add_time("createdTime", created_time_);
+    ju.add_string("description", description_);
+    ju.add_string("folderColorRgb", folder_color_rgb_);
+    ju.add_string("id", id_);
+    ju.add_string("name", name_);
+    ju.add_string("mimeType", mime_type_);
+    ju.add_time("modifiedTime", modified_time_);
+    ju.add_string("originalFileName", original_file_name_);
+    ju.add_string_vector("parents", parents_);
+    ju.add_map("properties", properties_);
+    ju.add_object("contentHints", content_hints_);
+    ju.add_object_vector("contentRestrictions", content_restrictions_);
+    ju.add_bool("starred", starred_);
+    ju.add_time("viewedByMeTime", viewed_by_me_time_);
+    ju.add_bool("writersCanShare", writers_can_share_);
 }
 
 }

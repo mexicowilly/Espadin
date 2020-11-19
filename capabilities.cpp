@@ -6,7 +6,7 @@ namespace espadin
 
 capabilities::capabilities(const cJSON& json)
 {
-    cjson::util ju(json);
+    cjson::util ju(const_cast<cJSON&>(json));
     ju.set_bool("canAddChildren", can_add_children_);
     ju.set_bool("canAddFolderFromAnotherDrive", can_add_folder_from_another_drive_);
     ju.set_bool("canAddMyDriveParent", can_add_my_drive_parent_);
