@@ -1,12 +1,18 @@
 #include "request.hpp"
 #include <espadin/exception.hpp>
-#include <sstream>
 #include <chucho/log.hpp>
+#include <sstream>
+#include <cassert>
+
+namespace
+{
+
+const std::string BASE_URL("https://www.googleapis.com/{}drive/v3/");
+
+}
 
 namespace espadin
 {
-
-const std::string request::BASE_URL("https://www.googleapis.com/drive/v3/");
 
 request::request(const std::string& access_token)
 {
@@ -15,8 +21,9 @@ request::request(const std::string& access_token)
     curl_.set_option(CURLOPT_HTTPHEADER, head, "HTTP authorization header");
 }
 
-request::~request()
+bool request::is_upload() const
 {
+    return false;
 }
 
 std::string request::parameters_as_url() const
@@ -41,7 +48,14 @@ std::string request::parameters_as_url() const
 
 std::unique_ptr<cjson::doc> request::run_impl()
 {
-    std::string url(BASE_URL + url_stem());
+    std::string url(BASE_URL);
+    auto pos = url.find("{}");
+    assert(pos != std::string::npos);
+    if (is_upload())
+        url.replace(pos, 2, "upload/");
+    else
+        url.erase(pos, 2);
+    url += url_stem();
     if (!parameters_.empty())
         url += '?' + parameters_as_url();
     CHUCHO_TRACE_L("Request URL: '" << url << "'");

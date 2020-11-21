@@ -7,6 +7,93 @@ namespace
 
 const std::string FILES_URL_BASE("files");
 
+class create_impl : public espadin::files_group::create_interface, public espadin::post_request
+{
+public:
+    create_impl(const std::string& access_token, const espadin::file& metadata);
+    virtual ~create_impl() override;
+
+    virtual create_interface& ignore_default_visibility(bool state) override;
+    virtual bool is_upload() const override;
+    virtual create_interface& keep_revision_forever(bool state) override;
+    virtual create_interface& ocr_language(const std::string& lang) override;
+    virtual std::unique_ptr<espadin::file> run() override;
+    virtual create_interface& supports_all_drives(bool state) override;
+    virtual std::string url_stem() const override;
+    virtual create_interface& use_content_as_indexable_text(bool state) override;
+
+private:
+    bool is_upload_;
+    curl_mime* mime_;
+};
+
+create_impl::create_impl(const std::string& access_token, const espadin::file& metadata)
+    : espadin::post_request(access_token),
+      is_upload_(false),
+      mime_(curl_.create_mime())
+{
+    parameters_["uploadType"] = "multipart";
+    auto part = curl_mime_addpart(mime_);
+    curl_mime_type(part, "application/json; charset=UTF-8");
+    auto doc = cJSON_CreateObject();
+    metadata.to_json(*doc);
+    auto json = cJSON_PrintUnformatted(doc);
+    cJSON_Delete(doc);
+    curl_mime_data(part, json, CURL_ZERO_TERMINATED);
+    curl_.set_option(CURLOPT_MIMEPOST, mime_, "set MIME parts");
+}
+
+create_impl::~create_impl()
+{
+    curl_mime_free(mime_);
+}
+
+espadin::files_group::create_interface& create_impl::ignore_default_visibility(bool state)
+{
+    parameters_["ignoreDefaultVisibility"] = state;
+    return *this;
+}
+
+bool create_impl::is_upload() const
+{
+    return is_upload_;
+}
+
+espadin::files_group::create_interface& create_impl::keep_revision_forever(bool state)
+{
+    parameters_["keepRevisionForever"] = state;
+    return *this;
+}
+
+espadin::files_group::create_interface& create_impl::ocr_language(const std::string& lang)
+{
+    parameters_["ocrLanguage"] = lang;
+    return *this;
+}
+
+std::unique_ptr<espadin::file> create_impl::run()
+{
+    auto doc = run_impl();
+    return std::make_unique<espadin::file>(*doc->get());
+}
+
+espadin::files_group::create_interface& create_impl::supports_all_drives(bool state)
+{
+    parameters_["supportsAllDrives"] = state;
+    return *this;
+}
+
+std::string create_impl::url_stem() const
+{
+    return FILES_URL_BASE;
+}
+
+espadin::files_group::create_interface& create_impl::use_content_as_indexable_text(bool state)
+{
+    parameters_["useContentAsIndexableText"] = state;
+    return *this;
+}
+
 class list_impl : public espadin::files_group::list_interface, public espadin::get_request
 {
 public:
@@ -119,13 +206,14 @@ files_group::files_group(drive& drv)
 {
 }
 
+std::unique_ptr<files_group::create_interface> files_group::create(const file& metadata)
+{
+    return std::make_unique<create_impl>(drive_.access_token_, metadata);
+}
+
 std::unique_ptr<files_group::list_interface> files_group::list()
 {
     return std::make_unique<list_impl>(drive_.access_token_);
-}
-
-files_group::list_interface::~list_interface()
-{
 }
 
 files_group::list_interface::reply::reply(const cJSON& json)

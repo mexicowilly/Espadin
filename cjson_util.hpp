@@ -95,6 +95,8 @@ void util::add_object_vector(const char* const name,
         }
         if (cJSON_GetArraySize(obj) > 0)
             cJSON_AddItemToObject(&json_, name, obj);
+        else
+            cJSON_Delete(obj);
     }
 }
 

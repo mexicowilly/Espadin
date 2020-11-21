@@ -22,6 +22,7 @@ public:
     curl();
     virtual ~curl();
 
+    curl_mime* create_mime();
     curl_slist* create_slist(std::vector<std::string>&& items0);
     std::string escape(const std::string& str) const;
     std::unique_ptr<cjson::doc> perform();
@@ -46,6 +47,11 @@ private:
     bool verbose_;
     std::vector<std::unique_ptr<curl_slist, void(*)(curl_slist*)>> slists_;
 };
+
+inline curl_mime* curl::create_mime()
+{
+    return curl_mime_init(curl_);
+}
 
 template<typename arg_type>
 void curl::set_option(CURLoption opt, arg_type arg, const char* const err_msg)

@@ -82,7 +82,7 @@ public:
     const std::optional<std::string>& team_drive_id() const;
     const std::optional<std::string>& thumbnail_link() const;
     const std::optional<long>& thumbnail_version() const;
-    void to_json(cJSON& json);
+    void to_json(cJSON& json) const;
     const std::optional<bool>& trashed() const;
     const std::optional<std::chrono::system_clock::time_point>& trashed_time() const;
     const std::optional<user>& trashing_user() const;

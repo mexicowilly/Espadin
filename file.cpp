@@ -65,7 +65,7 @@ file::file(const cJSON& json)
     ju.set_object_vector("contentRestrictions", content_restrictions_);
 }
 
-void file::to_json(cJSON& json)
+void file::to_json(cJSON& json) const
 {
     cjson::util ju(json);
     ju.add_map("appProperties", app_properties_);
