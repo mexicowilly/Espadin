@@ -11,7 +11,6 @@ class create_impl : public espadin::files_group::create_interface, public espadi
 {
 public:
     create_impl(const std::string& access_token, const espadin::file& metadata);
-    virtual ~create_impl() override;
 
     virtual create_interface& ignore_default_visibility(bool state) override;
     virtual bool is_upload() const override;
@@ -24,28 +23,19 @@ public:
 
 private:
     bool is_upload_;
-    curl_mime* mime_;
 };
 
 create_impl::create_impl(const std::string& access_token, const espadin::file& metadata)
     : espadin::post_request(access_token),
-      is_upload_(false),
-      mime_(curl_.create_mime())
+      is_upload_(false)
 {
-    parameters_["uploadType"] = "multipart";
-    auto part = curl_mime_addpart(mime_);
-    curl_mime_type(part, "application/json; charset=UTF-8");
+    parameters_["uploadType"] = std::string("multipart");
     auto doc = cJSON_CreateObject();
     metadata.to_json(*doc);
     auto json = cJSON_PrintUnformatted(doc);
     cJSON_Delete(doc);
-    curl_mime_data(part, json, CURL_ZERO_TERMINATED);
-    curl_.set_option(CURLOPT_MIMEPOST, mime_, "set MIME parts");
-}
-
-create_impl::~create_impl()
-{
-    curl_mime_free(mime_);
+    curl_.post_part("application/json; charset=UTF-8", json);
+    cJSON_free(json);
 }
 
 espadin::files_group::create_interface& create_impl::ignore_default_visibility(bool state)

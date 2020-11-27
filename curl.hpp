@@ -10,6 +10,8 @@
 #include <mutex>
 #include <vector>
 #include <memory>
+#include <map>
+#include <variant>
 
 namespace espadin
 {
@@ -17,15 +19,16 @@ namespace espadin
 class ESPADIN_PRIV_EXPORT curl : public chucho::loggable<curl>
 {
 public:
-    static bool get_ssl_supported();
+    static bool ssl_supported();
 
     curl();
     virtual ~curl();
 
-    curl_mime* create_mime();
-    curl_slist* create_slist(std::vector<std::string>&& items0);
     std::string escape(const std::string& str) const;
     std::unique_ptr<cjson::doc> perform();
+    void header(const std::string& name, const std::string& value);
+    void post_part(const std::string& mime_type, const std::string& data);
+    void post_part(const std::string& mime_type, const std::vector<std::byte>& data);
     template<typename arg_type>
     void set_option(CURLoption opt, arg_type arg, const char* const err_msg);
     void set_verbose(bool state);
@@ -38,19 +41,32 @@ private:
     };
 
     friend ESPADIN_NO_EXPORT int curl_debug_callback(CURL* crl,
-                                                    curl_infotype info_type,
-                                                    char* text,
-                                                    std::size_t num,
-                                                    void* user_data);
+                                                     curl_infotype info_type,
+                                                     char* text,
+                                                     std::size_t num,
+                                                     void* user_data);
+
+    void maybe_set_post_parts(std::vector<char>& result);
 
     CURL* curl_;
     bool verbose_;
-    std::vector<std::unique_ptr<curl_slist, void(*)(curl_slist*)>> slists_;
+    std::map<std::string, std::string> headers_;
+    std::vector<std::tuple<std::string, std::variant<std::string, std::vector<std::byte>>>> post_parts_;
 };
 
-inline curl_mime* curl::create_mime()
+inline void curl::header(const std::string& name, const std::string& value)
 {
-    return curl_mime_init(curl_);
+    headers_[name] = value;
+}
+
+inline void curl::post_part(const std::string& mime_type, const std::string& data)
+{
+    post_parts_.emplace_back(mime_type, data);
+}
+
+inline void curl::post_part(const std::string& mime_type, const std::vector<std::byte>& data)
+{
+    post_parts_.emplace_back(mime_type, data);
 }
 
 template<typename arg_type>
