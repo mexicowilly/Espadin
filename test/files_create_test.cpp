@@ -40,22 +40,26 @@ TEST_F(files_create, empty)
     espadin::file f;
     f.parents({parent_});
     auto create = files_->create(f);
-    create->run();
-//    espadin::drive drv(ACCESS_TOKEN);
-//    auto fl = drv.files()->list();
-//    fl->fields("files/id")
-//    .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder'");
-//    auto reply = fl->run();
-//    ASSERT_EQ(1, reply->files().size());
-//    ASSERT_TRUE(reply->files()[0].id());
-//    std::cout << "Found folder 'Espadin Test': " << reply->files()[0].id().value() << std::endl;
-//    do
-//    {
-//        reply = fl->run();
-//        for (const auto& f : reply->files())
-//            names.push_back(f.name());
-//        if (reply->next_page_token().empty())
-//            break;
-//        fl->page_token(reply->next_page_token());
-//    } while (true);
+    auto reply = create->run();
+    EXPECT_TRUE(reply->kind());
+    EXPECT_TRUE(reply->id());
+    EXPECT_TRUE(reply->name());
+    EXPECT_TRUE(reply->mime_type());
+}
+
+TEST_F(files_create, char_data)
+{
+    espadin::file f;
+    f.parents({parent_})
+     .name("my stuff.json");
+    std::vector<std::byte> data;
+    std::string str("{ \"hello\": \"goodbye\" }");
+    for (auto c : str)
+        data.push_back(static_cast<std::byte>(c));
+    auto create = files_->create(f, data, "application/json");
+    auto reply = create->run();
+    EXPECT_TRUE(reply->kind());
+    EXPECT_TRUE(reply->id());
+    EXPECT_TRUE(reply->name());
+    EXPECT_TRUE(reply->mime_type());
 }

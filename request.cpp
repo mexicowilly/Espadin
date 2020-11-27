@@ -17,9 +17,6 @@ namespace espadin
 request::request(const std::string& access_token)
 {
     curl_.header("Authorization", "Bearer " + access_token);
-//    std::string auth("Authorization: Bearer " + access_token);
-//    auto head = curl_.create_slist({auth});
-//    curl_.set_option(CURLOPT_HTTPHEADER, head, "HTTP authorization header");
 }
 
 bool request::is_upload() const

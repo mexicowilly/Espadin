@@ -11,6 +11,10 @@ class create_impl : public espadin::files_group::create_interface, public espadi
 {
 public:
     create_impl(const std::string& access_token, const espadin::file& metadata);
+    create_impl(const std::string& access_token,
+                const espadin::file& metadata,
+                const std::vector<std::byte>& data,
+                const std::string& mime_type);
 
     virtual create_interface& ignore_default_visibility(bool state) override;
     virtual bool is_upload() const override;
@@ -36,6 +40,16 @@ create_impl::create_impl(const std::string& access_token, const espadin::file& m
     cJSON_Delete(doc);
     curl_.post_part("application/json; charset=UTF-8", json);
     cJSON_free(json);
+}
+
+create_impl::create_impl(const std::string& access_token,
+                         const espadin::file& metadata,
+                         const std::vector<std::byte>& data,
+                         const std::string& mime_type)
+    : create_impl(access_token, metadata)
+{
+    is_upload_ = true;
+    curl_.post_part(mime_type, data);
 }
 
 espadin::files_group::create_interface& create_impl::ignore_default_visibility(bool state)
@@ -199,6 +213,13 @@ files_group::files_group(drive& drv)
 std::unique_ptr<files_group::create_interface> files_group::create(const file& metadata)
 {
     return std::make_unique<create_impl>(drive_.access_token_, metadata);
+}
+
+std::unique_ptr<files_group::create_interface> files_group::create(const file& metadata,
+                                                                   const std::vector<std::byte>& data,
+                                                                   const std::string& mime_type)
+{
+    return std::make_unique<create_impl>(drive_.access_token_, metadata, data, mime_type);
 }
 
 std::unique_ptr<files_group::list_interface> files_group::list()

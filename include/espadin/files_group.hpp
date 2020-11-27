@@ -68,6 +68,9 @@ public:
     files_group& operator= (const files_group&) = delete;
 
     std::unique_ptr<create_interface> create(const file& metadata);
+    std::unique_ptr<create_interface> create(const file& metadata,
+                                             const std::vector<std::byte>& data,
+                                             const std::string& mime_type = "application/octet-stream");
     std::unique_ptr<list_interface> list();
 
 private:
