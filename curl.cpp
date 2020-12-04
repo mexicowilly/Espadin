@@ -1,6 +1,7 @@
 #include "curl.hpp"
 #include "garbage_cleaner.hpp"
 #include <chucho/log.hpp>
+#include <cassert>
 
 namespace
 {
@@ -11,6 +12,39 @@ void global_setup()
 {
     curl_global_init(CURL_GLOBAL_ALL);
     espadin::garbage_cleaner::get().add([] () { curl_global_cleanup(); });
+}
+
+std::string to_lower(const std::string& str)
+{
+    std::string result;
+    std::transform(str.begin(),
+                   str.end(),
+                   std::back_inserter(result),
+                   [] (unsigned char c) -> unsigned char { return std::tolower(c); });
+    return result;
+}
+
+std::string trim(const std::string& str)
+{
+    std::string result(str);
+    result.erase(0, result.find_first_not_of(" \t\r\n"));
+    result.erase(result.find_last_not_of(" \t\r\n"));
+    return result;
+}
+
+std::size_t header_callback(char* buf, std::size_t sz, std::size_t num, void* udata)
+{
+    assert(sz == 1);
+    auto headers = reinterpret_cast<std::map<std::string, std::string>*>(udata);
+    std::string line(buf, num);
+    auto colon = line.find(':');
+    if (colon > line.length() - 1)
+    {
+        auto key = to_lower(trim(line.substr(0, colon)));
+        auto value = trim(line.substr(colon + 1));
+        headers->insert(std::make_pair(key, value));
+    }
+    return num;
 }
 
 std::size_t written_callback(char* data, std::size_t sz, std::size_t num, void* user)
@@ -38,15 +72,18 @@ int curl_debug_callback(CURL* crl,
 
 curl::curl()
     : curl_(nullptr),
-      verbose_(false)
+      verbose_(false),
+      response_code_(0)
 {
     std::call_once(global_once, global_setup);
     curl_ = curl_easy_init();
     if (curl_ == nullptr)
         throw std::runtime_error("Could not initialize libcurl");
-    set_option(CURLOPT_WRITEFUNCTION, written_callback, "write funtion");
     // HTTP/2 framing won't succeed when sending multipart post data
     set_option(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1, "HTTP version");
+    set_option(CURLOPT_WRITEFUNCTION, written_callback, "write funtion");
+    set_option(CURLOPT_HEADERFUNCTION, header_callback, "header callback");
+    set_option(CURLOPT_HEADERDATA, &response_headers_, "header data");
 }
 
 curl::~curl()
@@ -61,6 +98,15 @@ std::string curl::escape(const std::string& str) const
     auto loc = curl_easy_escape(curl_, str.c_str(), str.length());
     result = loc;
     curl_free(loc);
+    return result;
+}
+
+std::optional<std::string> curl::header(const std::string& key)
+{
+    std::optional<std::string> result;
+    auto found = headers_.find(key);
+    if (found != headers_.end())
+        result = found->second;
     return result;
 }
 
@@ -114,12 +160,24 @@ std::unique_ptr<cjson::doc> curl::perform()
     set_option(CURLOPT_HTTPHEADER, hlist, "HTTP header");
     std::string written;
     set_option(CURLOPT_WRITEDATA, &written, "write data");
+    response_headers_.clear();
+    response_code_ = 0;
     auto rc = curl_easy_perform(curl_);
     if (rc != CURLE_OK)
         throw curl_exception(rc, "Could not perform CURL operation");
+    curl_easy_getinfo(curl_, CURLINFO_RESPONSE_CODE, &response_code_);
     CHUCHO_TRACE_L("Received reply: " << written);
     curl_slist_free_all(hlist);
-    return std::move(std::make_unique<cjson::doc>(written));
+    return std::move((response_code_ >= 400 || written.empty()) ? std::unique_ptr<cjson::doc>() : std::make_unique<cjson::doc>(written));
+}
+
+std::optional<std::string> curl::response_header(const std::string& key)
+{
+    auto found = response_headers_.find(to_lower(key));
+    std::optional<std::string> result;
+    if (found != response_headers_.end())
+        result = found->second;
+    return result;
 }
 
 void curl::set_verbose(bool state)

@@ -1,6 +1,9 @@
 #include <espadin/files_group.hpp>
 #include <espadin/drive.hpp>
+#include "resumable_file_upload.hpp"
 #include "request.hpp"
+#include <fstream>
+#include <cassert>
 
 namespace
 {
@@ -13,43 +16,51 @@ public:
     create_impl(const std::string& access_token, const espadin::file& metadata);
     create_impl(const std::string& access_token,
                 const espadin::file& metadata,
-                const std::vector<std::byte>& data,
-                const std::string& mime_type);
+                const std::vector<std::byte>& data);
+    create_impl(const std::string& access_token,
+                const espadin::file& metadata,
+                const std::filesystem::path& to_upload);
 
     virtual create_interface& ignore_default_visibility(bool state) override;
     virtual bool is_upload() const override;
     virtual create_interface& keep_revision_forever(bool state) override;
     virtual create_interface& ocr_language(const std::string& lang) override;
+    virtual create_interface& progress_callback(const std::function<void (double)>& cb) override;
     virtual std::unique_ptr<espadin::file> run() override;
     virtual create_interface& supports_all_drives(bool state) override;
     virtual std::string url_stem() const override;
     virtual create_interface& use_content_as_indexable_text(bool state) override;
 
 private:
+    std::string metadata_to_json(const espadin::file& metadata);
+
     bool is_upload_;
+    std::filesystem::path to_upload_;
+    std::function<void (double)> progress_callback_;
+    espadin::file metadata_;
 };
 
 create_impl::create_impl(const std::string& access_token, const espadin::file& metadata)
     : espadin::post_request(access_token),
-      is_upload_(false)
+      metadata_(metadata)
 {
-    parameters_["uploadType"] = std::string("multipart");
-    auto doc = cJSON_CreateObject();
-    metadata.to_json(*doc);
-    auto json = cJSON_PrintUnformatted(doc);
-    cJSON_Delete(doc);
-    curl_.post_part("application/json; charset=UTF-8", json);
-    cJSON_free(json);
 }
 
 create_impl::create_impl(const std::string& access_token,
                          const espadin::file& metadata,
-                         const std::vector<std::byte>& data,
-                         const std::string& mime_type)
+                         const std::vector<std::byte>& data)
     : create_impl(access_token, metadata)
 {
     is_upload_ = true;
-    curl_.post_part(mime_type, data);
+}
+
+create_impl::create_impl(const std::string& access_token,
+                         const espadin::file& metadata,
+                         const std::filesystem::path& to_upload)
+    : espadin::post_request(access_token),
+      is_upload_(true),
+      to_upload_(to_upload)
+{
 }
 
 espadin::files_group::create_interface& create_impl::ignore_default_visibility(bool state)
@@ -69,16 +80,90 @@ espadin::files_group::create_interface& create_impl::keep_revision_forever(bool 
     return *this;
 }
 
+std::string create_impl::metadata_to_json(const espadin::file& metadata)
+{
+    auto doc = cJSON_CreateObject();
+    metadata.to_json(*doc);
+    auto json = cJSON_PrintUnformatted(doc);
+    cJSON_Delete(doc);
+    std::string result(json);
+    cJSON_free(json);
+    return result;
+}
+
 espadin::files_group::create_interface& create_impl::ocr_language(const std::string& lang)
 {
     parameters_["ocrLanguage"] = lang;
     return *this;
 }
 
+espadin::files_group::create_interface& create_impl::progress_callback(const std::function<void (double)>& cb)
+{
+    progress_callback_ = cb;
+    return *this;
+}
+
 std::unique_ptr<espadin::file> create_impl::run()
 {
+    bool is_resumable = false;
+    if (to_upload_.empty())
+    {
+        is_upload_ = false;
+        parameters_["uploadType"] = std::string("multipart");
+        curl_.post_part("application/json; charset=UTF-8", metadata_to_json(metadata_));
+    }
+    else
+    {
+        is_upload_ = true;
+        auto file_size = std::filesystem::file_size(to_upload_);
+        // This magic number is 4.5 MB. Google says only do a single
+        // upload for files less than 5 MB.
+        if (progress_callback_ || file_size > 9 * 1024 * 512)
+        {
+            is_resumable = true;
+            parameters_["uploadType"] = std::string("resumable");
+            auto json = metadata_to_json(metadata_);
+            curl_.set_option(CURLOPT_COPYPOSTFIELDS, 1, "copy POST fields");
+            curl_.set_option(CURLOPT_POSTFIELDSIZE, json.length(), "POST field size");
+            curl_.set_option(CURLOPT_POSTFIELDS, json.c_str(), "POST fields");
+            if (metadata_.mime_type())
+                curl_.header("X-Upload-Content-Type", *metadata_.mime_type());
+            curl_.header("X-Upload-Content-Length", std::to_string(file_size));
+            curl_.header("Content-Type", "application/json; charset=UTF-8");
+            curl_.header("Content-Length", std::to_string(json.length()));
+        }
+        else
+        {
+            parameters_["uploadType"] = std::string("multipart");
+            curl_.post_part("application/json; charset=UTF-8", metadata_to_json(metadata_));
+            if (file_size > 0)
+            {
+                std::string mime_type = metadata_.mime_type() ? *metadata_.mime_type() : "application/octet-stream";
+                std::ifstream stream(to_upload_, std::ios::in | std::ios::binary);
+                std::vector<std::byte> data(file_size);
+                stream.read(reinterpret_cast<char*>(data.data()), file_size);
+                if (!stream)
+                    throw std::runtime_error("Error reading file '" + to_upload_.string() + "'");
+                curl_.post_part(mime_type, data);
+            }
+            else
+            {
+                is_upload_ = false;
+            }
+        }
+    }
     auto doc = run_impl();
-    return std::make_unique<espadin::file>(*doc->get());
+    if (is_resumable)
+    {
+        auto auth = curl_.header("Authorization");
+        assert(auth);
+        auto loc = curl_.response_header("Location");
+        if (!loc)
+            throw std::runtime_error("Could not find required header 'Location' in HTTP response");
+        espadin::resumable_file_upload up(*auth, *loc, to_upload_, progress_callback_);
+        up.run();
+    }
+    return doc ? std::make_unique<espadin::file>(*doc->get()) : std::unique_ptr<espadin::file>();
 }
 
 espadin::files_group::create_interface& create_impl::supports_all_drives(bool state)
@@ -216,10 +301,9 @@ std::unique_ptr<files_group::create_interface> files_group::create(const file& m
 }
 
 std::unique_ptr<files_group::create_interface> files_group::create(const file& metadata,
-                                                                   const std::vector<std::byte>& data,
-                                                                   const std::string& mime_type)
+                                                                   const std::vector<std::byte>& data)
 {
-    return std::make_unique<create_impl>(drive_.access_token_, metadata, data, mime_type);
+    return std::make_unique<create_impl>(drive_.access_token_, metadata, data);
 }
 
 std::unique_ptr<files_group::list_interface> files_group::list()

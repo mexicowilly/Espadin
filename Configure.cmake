@@ -1,4 +1,5 @@
 INCLUDE(CheckCXXCompilerFlag)
+INCLUDE(CheckCXXSourceCompiles)
 
 OPTION(ENABLE_SHARED "Whether to build a shared object" OFF)
 OPTION(ENABLE_FRAMEWORK "Whether to build as a framework on Macintosh" ON)
@@ -125,6 +126,24 @@ ELSEIF(CMAKE_CXX_COMPILER_ID STREQUAL SunPro)
         MESSAGE(FATAL_ERROR "-erroff=${ESPADIN_SUNPRO_DISABLED_WARNINGS} is required")
     ENDIF()
     ADD_DEFINITIONS(-D_POSIX_PTHREAD_SEMANTICS)
+ENDIF()
+
+# Filesystem library
+CHECK_CXX_SOURCE_COMPILES("#include <filesystem>\nint main() { std::filesystem::current_path(); return 0; }" ESPADIN_LINK_FS_NO_LIB)
+IF(NOT ESPADIN_LINK_FS_NO_LIB)
+    SET(CMAKE_REQUIRED_LIBRARIES -lc++fs)
+    CHECK_CXX_SOURCE_COMPILES("#include <filesystem>\nint main() { std::filesystem::current_path(); return 0; }" ESPADIN_LINK_FS_ONE)
+    IF(ESPADIN_LINK_FS_ONE)
+        SET(ESPADIN_FS_LIB c++fs)
+    ELSE()
+        SET(CMAKE_REQUIRED_LIBRARIES -lstdc++fs)
+        CHECK_CXX_SOURCE_COMPILES("#include <filesystem>\nint main() { std::filesystem::current_path(); return 0; }" ESPADIN_LINK_FS_TWO)
+        IF(ESPADIN_LINK_FS_TWO)
+            SET(ESPADIN_FS_LIB stdc++fs)
+        ELSE()
+            MESSAGE(FATAL_ERROR "Could not find std::filesystem library")
+        ENDIF()
+    ENDIF()
 ENDIF()
 
 # Configure our export definitions

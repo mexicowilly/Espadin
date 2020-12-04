@@ -4,6 +4,8 @@
 #include <espadin/file.hpp>
 #include <string>
 #include <memory>
+#include <functional>
+#include <filesystem>
 
 namespace espadin
 {
@@ -21,6 +23,7 @@ public:
         virtual create_interface& ignore_default_visibility(bool state) = 0;
         virtual create_interface& keep_revision_forever(bool state) = 0;
         virtual create_interface& ocr_language(const std::string& lang) = 0;
+        virtual create_interface& progress_callback(const std::function<void (double)>& cb) = 0;
         virtual std::unique_ptr<file> run() = 0;
         virtual create_interface& supports_all_drives(bool state) = 0;
         virtual create_interface& use_content_as_indexable_text(bool state) = 0;
@@ -69,8 +72,7 @@ public:
 
     std::unique_ptr<create_interface> create(const file& metadata);
     std::unique_ptr<create_interface> create(const file& metadata,
-                                             const std::vector<std::byte>& data,
-                                             const std::string& mime_type = "application/octet-stream");
+                                             const std::vector<std::byte>& data);
     std::unique_ptr<list_interface> list();
 
 private:
