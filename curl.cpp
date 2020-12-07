@@ -1,5 +1,6 @@
 #include "curl.hpp"
 #include "garbage_cleaner.hpp"
+#include <espadin/exception.hpp>
 #include <chucho/log.hpp>
 #include <cassert>
 
@@ -168,7 +169,23 @@ std::unique_ptr<cjson::doc> curl::perform()
     curl_easy_getinfo(curl_, CURLINFO_RESPONSE_CODE, &response_code_);
     CHUCHO_TRACE_L("Received reply: " << written);
     curl_slist_free_all(hlist);
-    return std::move((response_code_ >= 400 || written.empty()) ? std::unique_ptr<cjson::doc>() : std::make_unique<cjson::doc>(written));
+    std::unique_ptr<cjson::doc> result;
+    try
+    {
+        if (!written.empty())
+            result = std::make_unique<cjson::doc>(written);
+        if (cJSON_HasObjectItem(**result, "error"))
+            throw drive_exception(***result);
+    }
+    catch (const drive_exception& de)
+    {
+        throw;
+    }
+    catch (const std::exception& e)
+    {
+        CHUCHO_DEBUG_L("JSON error: " << e.what());
+    }
+    return std::move(result);
 }
 
 std::optional<std::string> curl::response_header(const std::string& key)

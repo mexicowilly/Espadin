@@ -10,10 +10,10 @@ struct cJSON;
 namespace espadin
 {
 
-class ESPADIN_EXPORT exception : public std::exception
+class ESPADIN_EXPORT drive_exception : public std::exception
 {
 public:
-    exception(const cJSON& json);
+    drive_exception(const cJSON& json);
 
     int code() const;
     const std::map<std::string, std::string>& errors() const;
@@ -25,16 +25,32 @@ private:
     std::map<std::string, std::string> errors_;
 };
 
-std::ostream& operator<< (std::ostream& stream, const exception& excp);
+std::ostream& operator<< (std::ostream& stream, const drive_exception& excp);
 
-inline int exception::code() const
+class ESPADIN_EXPORT http_exception : public std::runtime_error
+{
+public:
+    http_exception(long code);
+
+    long code() const;
+
+private:
+    long code_;
+};
+
+inline int drive_exception::code() const
 {
     return code_;
 }
 
-inline const std::map<std::string, std::string>& exception::errors() const
+inline const std::map<std::string, std::string>& drive_exception::errors() const
 {
     return errors_;
+}
+
+inline long http_exception::code() const
+{
+    return code_;
 }
 
 }

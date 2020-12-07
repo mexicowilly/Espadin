@@ -58,10 +58,7 @@ std::unique_ptr<cjson::doc> request::run_impl()
         url += '?' + parameters_as_url();
     CHUCHO_TRACE_L("Request URL: '" << url << "'");
     curl_.set_option(CURLOPT_URL, url.c_str(), "set URL option");
-    auto result = curl_.perform();
-    if (cJSON_HasObjectItem(**result, "error"))
-        throw exception(***result);
-    return std::move(result);
+    return std::move(curl_.perform());
 }
 
 get_request::get_request(const std::string& access_token)

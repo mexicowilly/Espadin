@@ -17,7 +17,7 @@ public:
                           const std::filesystem::path& file,
                           const std::function<void(double)>& progress_callback);
 
-    void run();
+    std::unique_ptr<cjson::doc> run();
 
 private:
     curl curl_;

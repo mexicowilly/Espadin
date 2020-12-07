@@ -72,7 +72,7 @@ public:
 
     std::unique_ptr<create_interface> create(const file& metadata);
     std::unique_ptr<create_interface> create(const file& metadata,
-                                             const std::vector<std::byte>& data);
+                                             const std::filesystem::path& to_upload);
     std::unique_ptr<list_interface> list();
 
 private:

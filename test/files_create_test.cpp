@@ -47,20 +47,20 @@ TEST_F(files_create, empty)
     EXPECT_TRUE(reply->mime_type());
 }
 
-TEST_F(files_create, char_data)
-{
-    espadin::file f;
-    f.parents({parent_})
-     .name("my stuff.json")
-     .mime_type("application/json");
-    std::vector<std::byte> data;
-    std::string str("{ \"hello\": \"goodbye\" }");
-    for (auto c : str)
-        data.push_back(static_cast<std::byte>(c));
-    auto create = files_->create(f, data);
-    auto reply = create->run();
-    EXPECT_TRUE(reply->kind());
-    EXPECT_TRUE(reply->id());
-    EXPECT_TRUE(reply->name());
-    EXPECT_TRUE(reply->mime_type());
-}
+//TEST_F(files_create, char_data)
+//{
+//    espadin::file f;
+//    f.parents({parent_})
+//     .name("my stuff.json")
+//     .mime_type("application/json");
+//    std::vector<std::byte> data;
+//    std::string str("{ \"hello\": \"goodbye\" }");
+//    for (auto c : str)
+//        data.push_back(static_cast<std::byte>(c));
+//    auto create = files_->create(f, data);
+//    auto reply = create->run();
+//    EXPECT_TRUE(reply->kind());
+//    EXPECT_TRUE(reply->id());
+//    EXPECT_TRUE(reply->name());
+//    EXPECT_TRUE(reply->mime_type());
+//}

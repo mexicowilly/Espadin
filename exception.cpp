@@ -5,7 +5,7 @@
 namespace espadin
 {
 
-exception::exception(const cJSON& json)
+drive_exception::drive_exception(const cJSON& json)
     : code_(std::numeric_limits<int>::min())
 {
     auto err = cJSON_GetObjectItemCaseSensitive(&json, "error");
@@ -37,12 +37,12 @@ exception::exception(const cJSON& json)
     }
 }
 
-const char* exception::what() const noexcept
+const char* drive_exception::what() const noexcept
 {
     return message_.c_str();
 }
 
-std::ostream& operator<< (std::ostream& stream, const exception& excp)
+std::ostream& operator<< (std::ostream& stream, const drive_exception& excp)
 {
     auto doc = cJSON_CreateObject();
     if (excp.what()[0] != 0)
@@ -60,6 +60,12 @@ std::ostream& operator<< (std::ostream& stream, const exception& excp)
     stream << json;
     cJSON_free(json);
     return stream;
+}
+
+http_exception::http_exception(long code)
+    : std::runtime_error("HTTP error " + std::to_string(code)),
+      code_(code)
+{
 }
 
 }

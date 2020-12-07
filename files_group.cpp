@@ -16,9 +16,6 @@ public:
     create_impl(const std::string& access_token, const espadin::file& metadata);
     create_impl(const std::string& access_token,
                 const espadin::file& metadata,
-                const std::vector<std::byte>& data);
-    create_impl(const std::string& access_token,
-                const espadin::file& metadata,
                 const std::filesystem::path& to_upload);
 
     virtual create_interface& ignore_default_visibility(bool state) override;
@@ -48,18 +45,10 @@ create_impl::create_impl(const std::string& access_token, const espadin::file& m
 
 create_impl::create_impl(const std::string& access_token,
                          const espadin::file& metadata,
-                         const std::vector<std::byte>& data)
-    : create_impl(access_token, metadata)
-{
-    is_upload_ = true;
-}
-
-create_impl::create_impl(const std::string& access_token,
-                         const espadin::file& metadata,
                          const std::filesystem::path& to_upload)
     : espadin::post_request(access_token),
-      is_upload_(true),
-      to_upload_(to_upload)
+      to_upload_(to_upload),
+      metadata_(metadata)
 {
 }
 
@@ -161,7 +150,7 @@ std::unique_ptr<espadin::file> create_impl::run()
         if (!loc)
             throw std::runtime_error("Could not find required header 'Location' in HTTP response");
         espadin::resumable_file_upload up(*auth, *loc, to_upload_, progress_callback_);
-        up.run();
+        doc = up.run();
     }
     return doc ? std::make_unique<espadin::file>(*doc->get()) : std::unique_ptr<espadin::file>();
 }
@@ -301,9 +290,9 @@ std::unique_ptr<files_group::create_interface> files_group::create(const file& m
 }
 
 std::unique_ptr<files_group::create_interface> files_group::create(const file& metadata,
-                                                                   const std::vector<std::byte>& data)
+                                                                   const std::filesystem::path& to_upload)
 {
-    return std::make_unique<create_impl>(drive_.access_token_, metadata, data);
+    return std::make_unique<create_impl>(drive_.access_token_, metadata, to_upload);
 }
 
 std::unique_ptr<files_group::list_interface> files_group::list()

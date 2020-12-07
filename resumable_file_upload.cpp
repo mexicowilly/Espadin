@@ -1,4 +1,5 @@
 #include "resumable_file_upload.hpp"
+#include <espadin/exception.hpp>
 
 namespace
 {
@@ -14,14 +15,10 @@ struct read_data
 std::uintmax_t current_pos_from_range_response(const std::optional<std::string>& rr)
 {
     if (!rr)
-    {
-        // do something
-    }
+        throw std::runtime_error("The Range header is not present in the response");
     auto start_pos = rr->find('-');
     if (start_pos == std::string::npos)
-    {
-        // do something
-    }
+        throw std::runtime_error("The Range header does not contain '-'");
     auto sub = rr->substr(++start_pos);
     return std::stoull(sub) + 1;
 }
@@ -59,8 +56,9 @@ resumable_file_upload::resumable_file_upload(const std::string& auth_header,
     curl_.set_option(CURLOPT_URL, url.c_str(), "URL");
 }
 
-void resumable_file_upload::run()
+std::unique_ptr<cjson::doc> resumable_file_upload::run()
 {
+    std::unique_ptr<cjson::doc> result;
     auto total_size = std::filesystem::file_size(file_);
     read_data rd(stream_);
     curl_.set_option(CURLOPT_READDATA, &rd, "read data");
@@ -73,11 +71,9 @@ void resumable_file_upload::run()
         range << "bytes " << current_pos << '-' << current_pos + rd.current_chunk_size - 1 << '/' << total_size;
         curl_.header("Content-Length", std::to_string(rd.current_chunk_size));
         curl_.header("Content-Range", range.str());
-        curl_.perform();
-        if (curl_.response_code())
-        {
-            // do something
-        }
+        result = curl_.perform();
+        if (curl_.response_code() >= 400)
+            throw http_exception(curl_.response_code());
         auto actual_current_pos = current_pos_from_range_response(curl_.response_header("Range"));
         if (stream_.tellg() != actual_current_pos)
             stream_.seekg(actual_current_pos);
@@ -85,6 +81,7 @@ void resumable_file_upload::run()
         if (progress_callback_)
             progress_callback_(static_cast<double>(current_pos) / static_cast<double>(total_size) * 100.0);
     }
+    return result;
 }
 
 }
