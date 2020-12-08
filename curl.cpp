@@ -170,11 +170,11 @@ std::unique_ptr<cjson::doc> curl::perform()
     response_headers_.clear();
     response_code_ = 0;
     auto rc = curl_easy_perform(curl_);
+    curl_slist_free_all(hlist);
     if (rc != CURLE_OK)
         throw curl_exception(rc, "Could not perform CURL operation");
     curl_easy_getinfo(curl_, CURLINFO_RESPONSE_CODE, &response_code_);
     CHUCHO_TRACE_L("Received reply (" << response_code_ << "): " << written);
-    curl_slist_free_all(hlist);
     std::unique_ptr<cjson::doc> result;
     try
     {

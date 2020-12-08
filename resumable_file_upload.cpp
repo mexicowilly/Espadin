@@ -63,13 +63,16 @@ std::unique_ptr<cjson::doc> resumable_file_upload::run()
     read_data rd(stream_);
     curl_.set_option(CURLOPT_READDATA, &rd, "read data");
     std::uintmax_t current_pos = 0;
-    while (current_pos < total_size)
+    while (stream_ && current_pos < total_size)
     {
         rd.current_count = 0;
+        // The maximum size of each chunk is 256KB. That is not a limit imposed
+        // by Google. In fact, 256KB is the minimum size for the API. We use this
+        // minimum in order to maximize the value of a progress indicator.
         rd.current_chunk_size = std::min(total_size - current_pos, 256UL * 1024UL);
+        curl_.header("Content-Length", std::to_string(rd.current_chunk_size));
         std::ostringstream range;
         range << "bytes " << current_pos << '-' << current_pos + rd.current_chunk_size - 1 << '/' << total_size;
-        curl_.header("Content-Length", std::to_string(rd.current_chunk_size));
         curl_.header("Content-Range", range.str());
         result = curl_.perform();
         if (curl_.response_code() >= 400)
@@ -88,6 +91,8 @@ std::unique_ptr<cjson::doc> resumable_file_upload::run()
         if (progress_callback_)
             progress_callback_(static_cast<double>(current_pos) / static_cast<double>(total_size) * 100.0);
     }
+    if (!stream_)
+        throw std::runtime_error("Error reading from file '" + file_.string() + "'");
     return result;
 }
 

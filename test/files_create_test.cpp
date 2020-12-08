@@ -57,7 +57,7 @@ TEST_F(files_create, small)
     stream.close();
     espadin::file md;
     md.parents({parent_})
-      .name("files_create_small.txt");
+      .name(f.filename().string());
     auto reply = files_->create(md, f)->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
@@ -75,7 +75,7 @@ TEST_F(files_create, large)
     stream.close();
     espadin::file md;
     md.parents({parent_})
-      .name("files_create_large.txt");
+      .name(f.filename().string());
     auto reply = files_->create(md, f)->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
