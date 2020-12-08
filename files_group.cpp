@@ -112,9 +112,8 @@ std::unique_ptr<espadin::file> create_impl::run()
             is_resumable = true;
             parameters_["uploadType"] = std::string("resumable");
             auto json = metadata_to_json(metadata_);
-            curl_.set_option(CURLOPT_COPYPOSTFIELDS, 1, "copy POST fields");
             curl_.set_option(CURLOPT_POSTFIELDSIZE, json.length(), "POST field size");
-            curl_.set_option(CURLOPT_POSTFIELDS, json.c_str(), "POST fields");
+            curl_.set_option(CURLOPT_COPYPOSTFIELDS, json.c_str(), "POST fields");
             if (metadata_.mime_type())
                 curl_.header("X-Upload-Content-Type", *metadata_.mime_type());
             curl_.header("X-Upload-Content-Length", std::to_string(file_size));

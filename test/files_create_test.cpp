@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <espadin/drive.hpp>
 #include <iostream>
+#include <fstream>
 
 extern std::string ACCESS_TOKEN;
 
@@ -47,6 +48,41 @@ TEST_F(files_create, empty)
     EXPECT_TRUE(reply->mime_type());
 }
 
+TEST_F(files_create, small)
+{
+    std::filesystem::path f = std::filesystem::temp_directory_path() / "files_create_small.txt";
+    std::ofstream stream(f);
+    for (int i = 0; i < 2 * 1024 * 1024; i++)
+        stream << 'a';
+    stream.close();
+    espadin::file md;
+    md.parents({parent_})
+      .name("files_create_small.txt");
+    auto reply = files_->create(md, f)->run();
+    std::filesystem::remove(f);
+    EXPECT_TRUE(reply->kind());
+    EXPECT_TRUE(reply->id());
+    EXPECT_TRUE(reply->name());
+    EXPECT_TRUE(reply->mime_type());
+}
+
+TEST_F(files_create, large)
+{
+    std::filesystem::path f = std::filesystem::temp_directory_path() / "files_create_large.txt";
+    std::ofstream stream(f);
+    for (int i = 0; i < 6 * 1024 * 1024; i++)
+        stream << 'a';
+    stream.close();
+    espadin::file md;
+    md.parents({parent_})
+      .name("files_create_large.txt");
+    auto reply = files_->create(md, f)->run();
+    std::filesystem::remove(f);
+    EXPECT_TRUE(reply->kind());
+    EXPECT_TRUE(reply->id());
+    EXPECT_TRUE(reply->name());
+    EXPECT_TRUE(reply->mime_type());
+}
 //TEST_F(files_create, char_data)
 //{
 //    espadin::file f;

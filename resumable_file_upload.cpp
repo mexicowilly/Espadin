@@ -63,7 +63,7 @@ std::unique_ptr<cjson::doc> resumable_file_upload::run()
     read_data rd(stream_);
     curl_.set_option(CURLOPT_READDATA, &rd, "read data");
     std::uintmax_t current_pos = 0;
-    while (!stream_.eof())
+    while (current_pos < total_size)
     {
         rd.current_count = 0;
         rd.current_chunk_size = std::min(total_size - current_pos, 256UL * 1024UL);
@@ -74,10 +74,17 @@ std::unique_ptr<cjson::doc> resumable_file_upload::run()
         result = curl_.perform();
         if (curl_.response_code() >= 400)
             throw http_exception(curl_.response_code());
-        auto actual_current_pos = current_pos_from_range_response(curl_.response_header("Range"));
-        if (stream_.tellg() != actual_current_pos)
-            stream_.seekg(actual_current_pos);
-        current_pos = actual_current_pos;
+        if (curl_.response_code() > 201)
+        {
+            auto actual_current_pos = current_pos_from_range_response(curl_.response_header("Range"));
+            if (stream_.tellg() != actual_current_pos)
+                stream_.seekg(actual_current_pos);
+            current_pos = actual_current_pos;
+        }
+        else
+        {
+            current_pos = total_size;
+        }
         if (progress_callback_)
             progress_callback_(static_cast<double>(current_pos) / static_cast<double>(total_size) * 100.0);
     }

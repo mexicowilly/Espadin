@@ -29,7 +29,12 @@ std::string trim(const std::string& str)
 {
     std::string result(str);
     result.erase(0, result.find_first_not_of(" \t\r\n"));
-    result.erase(result.find_last_not_of(" \t\r\n"));
+    if (!result.empty())
+    {
+        auto last = result.find_last_not_of(" \t\r\n");
+        if (last < result.length() - 1)
+            result.erase(last + 1);
+    }
     return result;
 }
 
@@ -39,11 +44,12 @@ std::size_t header_callback(char* buf, std::size_t sz, std::size_t num, void* ud
     auto headers = reinterpret_cast<std::map<std::string, std::string>*>(udata);
     std::string line(buf, num);
     auto colon = line.find(':');
-    if (colon > line.length() - 1)
+    if (colon < line.length() - 1)
     {
         auto key = to_lower(trim(line.substr(0, colon)));
         auto value = trim(line.substr(colon + 1));
-        headers->insert(std::make_pair(key, value));
+        if (!key.empty())
+            headers->insert(std::make_pair(key, value));
     }
     return num;
 }
@@ -167,15 +173,17 @@ std::unique_ptr<cjson::doc> curl::perform()
     if (rc != CURLE_OK)
         throw curl_exception(rc, "Could not perform CURL operation");
     curl_easy_getinfo(curl_, CURLINFO_RESPONSE_CODE, &response_code_);
-    CHUCHO_TRACE_L("Received reply: " << written);
+    CHUCHO_TRACE_L("Received reply (" << response_code_ << "): " << written);
     curl_slist_free_all(hlist);
     std::unique_ptr<cjson::doc> result;
     try
     {
         if (!written.empty())
+        {
             result = std::make_unique<cjson::doc>(written);
-        if (cJSON_HasObjectItem(**result, "error"))
-            throw drive_exception(***result);
+            if (cJSON_HasObjectItem(**result, "error"))
+                throw drive_exception(***result);
+        }
     }
     catch (const drive_exception& de)
     {
