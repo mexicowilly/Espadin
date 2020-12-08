@@ -52,6 +52,8 @@ LIST(APPEND ESPADIN_SOURCES
      permission.cpp
      request.cpp
      request.hpp
+     resumable_file_upload.cpp
+     resumable_file_upload.hpp
      shortcut_details.cpp
      user.cpp
      video_media_metadata.cpp
@@ -95,6 +97,7 @@ ENDIF()
 
 TARGET_LINK_LIBRARIES(espadin
                       "${ESPADIN_CHUCHO_LIB}"
-                      CURL::libcurl)
+                      CURL::libcurl
+                      ${ESPADIN_FS_LIB})
 
 ADD_SUBDIRECTORY(test)

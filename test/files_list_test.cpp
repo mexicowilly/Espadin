@@ -12,7 +12,8 @@ TEST(files, list)
        .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder'");
     auto reply = fl->run();
     ASSERT_EQ(1, reply->files().size());
-    std::cout << "Found folder 'Espadin Test': " << reply->files()[0].id() << std::endl;
+    ASSERT_TRUE(reply->files()[0].id());
+    std::cout << "Found folder 'Espadin Test': " << reply->files()[0].id().value() << std::endl;
 //    do
 //    {
 //        reply = fl->run();

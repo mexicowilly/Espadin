@@ -2,7 +2,7 @@
 #define ESPADING_CAPABILITIES_HPP__
 
 #include <espadin/export.hpp>
-#include <bitset>
+#include <optional>
 
 struct cJSON;
 
@@ -12,58 +12,248 @@ namespace espadin
 class ESPADIN_EXPORT capabilities
 {
 public:
-    enum item
-    {
-        CAN_ADD_CHILDREN,
-        CAN_ADD_FOLDER_FROM_ANOTHER_DRIVE,
-        CAN_ADD_MY_DRIVE_PARENT,
-        CAN_CHANGE_COPY_REQUIRES_WRITER_PERMISSION,
-        CAN_CHANGE_VIEWER_CAN_COPY_CONTENT,
-        CAN_COMMENT,
-        CAN_COPY,
-        CAN_DELETE,
-        CAN_DELETE_CHILDREN,
-        CAN_DOWNLOAD,
-        CAN_EDIT,
-        CAN_LIST_CHILDREN,
-        CAN_MODIFY_CONTENT,
-        CAN_MODIFY_CONTENT_RESTRICTION,
-        CAN_MOVE_CHILDREN_OUT_OF_TEAM_DRIVE,
-        CAN_MOVE_CHILDREN_OUT_OF_DRIVE,
-        CAN_MOVE_CHILDREN_WITHIN_TEAM_DRIVE,
-        CAN_MOVE_CHILDREN_WITHIN_DRIVE,
-        CAN_MOVE_ITEM_INTO_TEAM_DRIVE,
-        CAN_MOVE_ITEM_OUT_OF_TEAM_DRIVE,
-        CAN_MOVE_ITEM_OUT_OF_DRIVE,
-        CAN_MOVE_ITEM_WITHIN_TEAM_DRIVE,
-        CAN_MOVE_ITEM_WITHIN_DRIVE,
-        CAN_MOVE_TEAM_DRIVE_ITEM,
-        CAN_READ_REVISIONS,
-        CAN_READ_TEAM_DRIVE,
-        CAN_READ_DRIVE,
-        CAN_REMOVE_CHILDREN,
-        CAN_REMOVE_MY_DRIVE_PARENT,
-        CAN_RENAME,
-        CAN_SHARE,
-        CAN_TRASH,
-        CAN_TRASH_CHILDREN,
-        CAN_UNTRASH,
-        ITEM_COUNT
-    };
-
     capabilities(const cJSON& json);
 
-    bool get(item it) const;
+    const std::optional<bool>& can_add_children() const;
+    const std::optional<bool>& can_add_folder_from_another_drive() const;
+    const std::optional<bool>& can_add_my_drive_parent() const;
+    const std::optional<bool>& can_change_copy_requires_writer_permission() const;
+    const std::optional<bool>& can_change_viewer_can_copy_content() const;
+    const std::optional<bool>& can_comment() const;
+    const std::optional<bool>& can_copy() const;
+    const std::optional<bool>& can_delete() const;
+    const std::optional<bool>& can_delete_children() const;
+    const std::optional<bool>& can_download() const;
+    const std::optional<bool>& can_edit() const;
+    const std::optional<bool>& can_list_children() const;
+    const std::optional<bool>& can_modify_content() const;
+    const std::optional<bool>& can_modify_content_restriction() const;
+    const std::optional<bool>& can_move_children_out_of_team_drive() const;
+    const std::optional<bool>& can_move_children_out_of_drive() const;
+    const std::optional<bool>& can_move_children_within_team_drive() const;
+    const std::optional<bool>& can_move_children_within_drive() const;
+    const std::optional<bool>& can_move_item_into_team_drive() const;
+    const std::optional<bool>& can_move_item_out_of_team_drive() const;
+    const std::optional<bool>& can_move_item_out_of_drive() const;
+    const std::optional<bool>& can_move_item_within_team_drive() const;
+    const std::optional<bool>& can_move_item_within_drive() const;
+    const std::optional<bool>& can_move_team_drive_item() const;
+    const std::optional<bool>& can_read_revisions() const;
+    const std::optional<bool>& can_read_team_drive() const;
+    const std::optional<bool>& can_read_drive() const;
+    const std::optional<bool>& can_remove_children() const;
+    const std::optional<bool>& can_remove_my_drive_parent() const;
+    const std::optional<bool>& can_rename() const;
+    const std::optional<bool>& can_share() const;
+    const std::optional<bool>& can_trash() const;
+    const std::optional<bool>& can_trash_children() const;
+    const std::optional<bool>& can_untrash() const;
 
 private:
-    void set_value(const cJSON& json, const char* const name, item it);
-
-    std::bitset<ITEM_COUNT> caps_;
+    std::optional<bool> can_add_children_;
+    std::optional<bool> can_add_folder_from_another_drive_;
+    std::optional<bool> can_add_my_drive_parent_;
+    std::optional<bool> can_change_copy_requires_writer_permission_;
+    std::optional<bool> can_change_viewer_can_copy_content_;
+    std::optional<bool> can_comment_;
+    std::optional<bool> can_copy_;
+    std::optional<bool> can_delete_;
+    std::optional<bool> can_delete_children_;
+    std::optional<bool> can_download_;
+    std::optional<bool> can_edit_;
+    std::optional<bool> can_list_children_;
+    std::optional<bool> can_modify_content_;
+    std::optional<bool> can_modify_content_restriction_;
+    std::optional<bool> can_move_children_out_of_team_drive_;
+    std::optional<bool> can_move_children_out_of_drive_;
+    std::optional<bool> can_move_children_within_team_drive_;
+    std::optional<bool> can_move_children_within_drive_;
+    std::optional<bool> can_move_item_into_team_drive_;
+    std::optional<bool> can_move_item_out_of_team_drive_;
+    std::optional<bool> can_move_item_out_of_drive_;
+    std::optional<bool> can_move_item_within_team_drive_;
+    std::optional<bool> can_move_item_within_drive_;
+    std::optional<bool> can_move_team_drive_item_;
+    std::optional<bool> can_read_revisions_;
+    std::optional<bool> can_read_team_drive_;
+    std::optional<bool> can_read_drive_;
+    std::optional<bool> can_remove_children_;
+    std::optional<bool> can_remove_my_drive_parent_;
+    std::optional<bool> can_rename_;
+    std::optional<bool> can_share_;
+    std::optional<bool> can_trash_;
+    std::optional<bool> can_trash_children_;
+    std::optional<bool> can_untrash_;
 };
 
-inline bool capabilities::get(item it) const
+inline const std::optional<bool>& capabilities::can_add_children() const
 {
-    return caps_.test(it);
+    return can_add_children_;
+}
+
+inline const std::optional<bool>& capabilities::can_add_folder_from_another_drive() const
+{
+    return can_add_folder_from_another_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_add_my_drive_parent() const
+{
+    return can_add_my_drive_parent_;
+}
+
+inline const std::optional<bool>& capabilities::can_change_copy_requires_writer_permission() const
+{
+    return can_change_copy_requires_writer_permission_;
+}
+
+inline const std::optional<bool>& capabilities::can_change_viewer_can_copy_content() const
+{
+    return can_change_viewer_can_copy_content_;
+}
+
+inline const std::optional<bool>& capabilities::can_comment() const
+{
+    return can_comment_;
+}
+
+inline const std::optional<bool>& capabilities::can_copy() const
+{
+    return can_copy_;
+}
+
+inline const std::optional<bool>& capabilities::can_delete() const
+{
+    return can_delete_;
+}
+
+inline const std::optional<bool>& capabilities::can_delete_children() const
+{
+    return can_delete_children_;
+}
+
+inline const std::optional<bool>& capabilities::can_download() const
+{
+    return can_download_;
+}
+
+inline const std::optional<bool>& capabilities::can_edit() const
+{
+    return can_edit_;
+}
+
+inline const std::optional<bool>& capabilities::can_list_children() const
+{
+    return can_list_children_;
+}
+
+inline const std::optional<bool>& capabilities::can_modify_content() const
+{
+    return can_modify_content_;
+}
+
+inline const std::optional<bool>& capabilities::can_modify_content_restriction() const
+{
+    return can_modify_content_restriction_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_children_out_of_team_drive() const
+{
+    return can_move_children_out_of_team_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_children_out_of_drive() const
+{
+    return can_move_children_out_of_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_children_within_team_drive() const
+{
+    return can_move_children_within_team_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_children_within_drive() const
+{
+    return can_move_children_within_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_item_into_team_drive() const
+{
+    return can_move_item_into_team_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_item_out_of_team_drive() const
+{
+    return can_move_item_out_of_team_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_item_out_of_drive() const
+{
+    return can_move_item_out_of_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_item_within_team_drive() const
+{
+    return can_move_item_within_team_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_item_within_drive() const
+{
+    return can_move_item_within_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_move_team_drive_item() const
+{
+    return can_move_team_drive_item_;
+}
+
+inline const std::optional<bool>& capabilities::can_read_revisions() const
+{
+    return can_read_revisions_;
+}
+
+inline const std::optional<bool>& capabilities::can_read_team_drive() const
+{
+    return can_read_team_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_read_drive() const
+{
+    return can_read_drive_;
+}
+
+inline const std::optional<bool>& capabilities::can_remove_children() const
+{
+    return can_remove_children_;
+}
+
+inline const std::optional<bool>& capabilities::can_remove_my_drive_parent() const
+{
+    return can_remove_my_drive_parent_;
+}
+
+inline const std::optional<bool>& capabilities::can_rename() const
+{
+    return can_rename_;
+}
+
+inline const std::optional<bool>& capabilities::can_share() const
+{
+    return can_share_;
+}
+
+inline const std::optional<bool>& capabilities::can_trash() const
+{
+    return can_trash_;
+}
+
+inline const std::optional<bool>& capabilities::can_trash_children() const
+{
+    return can_trash_children_;
+}
+
+inline const std::optional<bool>& capabilities::can_untrash() const
+{
+    return can_untrash_;
 }
 
 }

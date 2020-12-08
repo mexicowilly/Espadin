@@ -1,58 +1,46 @@
 #include <espadin/capabilities.hpp>
-#include "cJSON.h"
-#include <stdexcept>
+#include "cjson_util.hpp"
 
 namespace espadin
 {
 
 capabilities::capabilities(const cJSON& json)
 {
-    set_value(json, "canAddChildren", CAN_ADD_CHILDREN);
-    set_value(json, "canAddFolderFromAnotherDrive", CAN_ADD_FOLDER_FROM_ANOTHER_DRIVE);
-    set_value(json, "canAddMyDriveParent", CAN_ADD_MY_DRIVE_PARENT);
-    set_value(json, "canChangeCopyRequiresWriterPermission", CAN_CHANGE_COPY_REQUIRES_WRITER_PERMISSION);
-    set_value(json, "canChangeViewerCanCopyContent", CAN_CHANGE_VIEWER_CAN_COPY_CONTENT);
-    set_value(json, "canComment", CAN_COMMENT);
-    set_value(json, "canCopy", CAN_COPY);
-    set_value(json, "canDelete", CAN_DELETE);
-    set_value(json, "canDeleteChildren", CAN_DELETE_CHILDREN);
-    set_value(json, "canDownload", CAN_DOWNLOAD);
-    set_value(json, "canEdit", CAN_EDIT);
-    set_value(json, "canListChildren", CAN_LIST_CHILDREN);
-    set_value(json, "canModifyContent", CAN_MODIFY_CONTENT);
-    set_value(json, "canModifyContentRestriction", CAN_MODIFY_CONTENT_RESTRICTION);
-    set_value(json, "canMoveChildrenOutOfTeamDrive", CAN_MOVE_CHILDREN_OUT_OF_TEAM_DRIVE);
-    set_value(json, "canMoveChildrenOutOfDrive", CAN_MOVE_CHILDREN_OUT_OF_DRIVE);
-    set_value(json, "canMoveChildrenWithinTeamDrive", CAN_MOVE_CHILDREN_WITHIN_TEAM_DRIVE);
-    set_value(json, "canMoveChildrenWithinDrive", CAN_MOVE_CHILDREN_WITHIN_DRIVE);
-    set_value(json, "canMoveItemIntoTeamDrive", CAN_MOVE_ITEM_INTO_TEAM_DRIVE);
-    set_value(json, "canMoveItemOutOfTeamDrive", CAN_MOVE_ITEM_OUT_OF_TEAM_DRIVE);
-    set_value(json, "canMoveItemOutOfDrive", CAN_MOVE_ITEM_OUT_OF_DRIVE);
-    set_value(json, "canMoveItemWithinTeamDrive", CAN_MOVE_ITEM_WITHIN_TEAM_DRIVE);
-    set_value(json, "canMoveItemWithinDrive", CAN_MOVE_ITEM_WITHIN_DRIVE);
-    set_value(json, "canMoveTeamDriveItem", CAN_MOVE_TEAM_DRIVE_ITEM);
-    set_value(json, "canReadRevisions", CAN_READ_REVISIONS);
-    set_value(json, "canReadTeamDrive", CAN_READ_TEAM_DRIVE);
-    set_value(json, "canReadDrive", CAN_READ_DRIVE);
-    set_value(json, "canRemoveChildren", CAN_REMOVE_CHILDREN);
-    set_value(json, "canRemoveMyDriveParent", CAN_REMOVE_MY_DRIVE_PARENT);
-    set_value(json, "canRename", CAN_RENAME);
-    set_value(json, "canShare", CAN_SHARE);
-    set_value(json, "canTrash", CAN_TRASH);
-    set_value(json, "canTrashChildren", CAN_TRASH_CHILDREN);
-    set_value(json, "canUntrash", CAN_UNTRASH);
-}
-
-void capabilities::set_value(const cJSON& json, const char* const name, item it)
-{
-    auto bool_obj = cJSON_GetObjectItemCaseSensitive(&json, name);
-    if (bool_obj != nullptr)
-    {
-        if (cJSON_IsBool(bool_obj))
-            caps_.set(it, bool_obj->type == cJSON_True);
-        else
-            throw std::runtime_error(std::string("JSON field '") + name + "' is not a bool");
-    }
+    cjson::util ju(const_cast<cJSON&>(json));
+    ju.set_bool("canAddChildren", can_add_children_);
+    ju.set_bool("canAddFolderFromAnotherDrive", can_add_folder_from_another_drive_);
+    ju.set_bool("canAddMyDriveParent", can_add_my_drive_parent_);
+    ju.set_bool("canChangeCopyRequiresWriterPermission", can_change_copy_requires_writer_permission_);
+    ju.set_bool("canChangeViewerCanCopyContent", can_change_viewer_can_copy_content_);
+    ju.set_bool("canComment", can_comment_);
+    ju.set_bool("canCopy", can_copy_);
+    ju.set_bool("canDelete", can_delete_);
+    ju.set_bool("canDeleteChildren", can_delete_children_);
+    ju.set_bool("canDownload", can_download_);
+    ju.set_bool("canEdit", can_edit_);
+    ju.set_bool("canListChildren", can_list_children_);
+    ju.set_bool("canModifyContent", can_modify_content_);
+    ju.set_bool("canModifyContentRestriction", can_modify_content_restriction_);
+    ju.set_bool("canMoveChildrenOutOfTeamDrive", can_move_children_out_of_team_drive_);
+    ju.set_bool("canMoveChildrenOutOfDrive", can_move_children_out_of_drive_);
+    ju.set_bool("canMoveChildrenWithinTeamDrive", can_move_children_within_team_drive_);
+    ju.set_bool("canMoveChildrenWithinDrive", can_move_children_within_drive_);
+    ju.set_bool("canMoveItemIntoTeamDrive", can_move_item_into_team_drive_);
+    ju.set_bool("canMoveItemOutOfTeamDrive", can_move_item_out_of_team_drive_);
+    ju.set_bool("canMoveItemOutOfDrive", can_move_item_out_of_drive_);
+    ju.set_bool("canMoveItemWithinTeamDrive", can_move_item_within_team_drive_);
+    ju.set_bool("canMoveItemWithinDrive", can_move_item_within_drive_);
+    ju.set_bool("canMoveTeamDriveItem", can_move_team_drive_item_);
+    ju.set_bool("canReadRevisions", can_read_revisions_);
+    ju.set_bool("canReadTeamDrive", can_read_team_drive_);
+    ju.set_bool("canReadDrive", can_read_drive_);
+    ju.set_bool("canRemoveChildren", can_remove_children_);
+    ju.set_bool("canRemoveMyDriveParent", can_remove_my_drive_parent_);
+    ju.set_bool("canRename", can_rename_);
+    ju.set_bool("canShare", can_share_);
+    ju.set_bool("canTrash", can_trash_);
+    ju.set_bool("canTrashChildren", can_trash_children_);
+    ju.set_bool("canUntrash", can_untrash_);
 }
 
 }
