@@ -27,6 +27,7 @@ public:
     std::string escape(const std::string& str) const;
     std::optional<std::string> header(const std::string& key);
     void header(const std::string& name, const std::string& value);
+    void output(std::ostream& stream);
     std::unique_ptr<cjson::doc> perform();
     void post_part(const std::string& mime_type, const std::string& data);
     void post_part(const std::string& mime_type, const std::vector<std::byte>& data);
@@ -57,6 +58,8 @@ private:
     std::vector<std::tuple<std::string, std::variant<std::string, std::vector<std::byte>>>> post_parts_;
     std::map<std::string, std::string> response_headers_;
     long response_code_;
+    // This is just a settable reference
+    std::ostream* output_;
 };
 
 inline void curl::header(const std::string& name, const std::string& value)

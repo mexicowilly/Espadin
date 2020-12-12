@@ -56,9 +56,15 @@ std::size_t header_callback(char* buf, std::size_t sz, std::size_t num, void* ud
 
 std::size_t written_callback(char* data, std::size_t sz, std::size_t num, void* user)
 {
-    auto str = reinterpret_cast<std::string*>(user);
     auto total = sz * num;
-    str->append(data, total);
+    reinterpret_cast<std::string*>(user)->append(data, total);
+    return total;
+}
+
+std::size_t written_stream_callback(char* data, std::size_t sz, std::size_t num, void* user)
+{
+    auto total = sz * num;
+    reinterpret_cast<std::ostream*>(user)->write(data, total);
     return total;
 }
 
@@ -80,7 +86,8 @@ int curl_debug_callback(CURL* crl,
 curl::curl()
     : curl_(nullptr),
       verbose_(false),
-      response_code_(0)
+      response_code_(0),
+      output_(nullptr)
 {
     std::call_once(global_once, global_setup);
     curl_ = curl_easy_init();
@@ -88,7 +95,6 @@ curl::curl()
         throw std::runtime_error("Could not initialize libcurl");
     // HTTP/2 framing won't succeed when sending multipart post data
     set_option(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1, "HTTP version");
-    set_option(CURLOPT_WRITEFUNCTION, written_callback, "write funtion");
     set_option(CURLOPT_HEADERFUNCTION, header_callback, "header callback");
     set_option(CURLOPT_HEADERDATA, &response_headers_, "header data");
 }
@@ -154,6 +160,13 @@ void curl::maybe_set_post_parts(std::vector<char>& result)
     }
 }
 
+void curl::output(std::ostream& stream)
+{
+    output_ = &stream;
+    set_option(CURLOPT_WRITEFUNCTION, written_stream_callback, "write funtion");
+    set_option(CURLOPT_WRITEDATA, output_, "write data");
+}
+
 std::unique_ptr<cjson::doc> curl::perform()
 {
     std::vector<char> postable;
@@ -166,7 +179,11 @@ std::unique_ptr<cjson::doc> curl::perform()
     }
     set_option(CURLOPT_HTTPHEADER, hlist, "HTTP header");
     std::string written;
-    set_option(CURLOPT_WRITEDATA, &written, "write data");
+    if (output_ == nullptr)
+    {
+        set_option(CURLOPT_WRITEFUNCTION, written_callback, "write funtion");
+        set_option(CURLOPT_WRITEDATA, &written, "write data");
+    }
     response_headers_.clear();
     response_code_ = 0;
     auto rc = curl_easy_perform(curl_);
@@ -193,7 +210,7 @@ std::unique_ptr<cjson::doc> curl::perform()
     {
         CHUCHO_DEBUG_L("JSON error: " << e.what());
     }
-    return std::move(result);
+    return result;
 }
 
 std::optional<std::string> curl::response_header(const std::string& key)

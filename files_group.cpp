@@ -171,6 +171,74 @@ espadin::files_group::create_interface& create_impl::use_content_as_indexable_te
     return *this;
 }
 
+class get_impl : public espadin::files_group::get_interface, public espadin::get_request
+{
+public:
+    get_impl(const std::string& access_token, const std::string& file_id);
+    get_impl(const std::string& access_token, const std::string& file_id, std::ostream& content_destination);
+
+    virtual get_interface& acknowledge_abuse(bool ack) override;
+    virtual get_interface& fields(const std::string& str) override;
+    virtual get_interface& include_permissions_for_view(const std::string& str) override;
+    virtual std::unique_ptr<espadin::file> run() override;
+    virtual get_interface& supports_all_drives(bool sup) override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+};
+
+get_impl::get_impl(const std::string& access_token, const std::string& file_id)
+    : espadin::get_request(access_token),
+      file_id_(file_id)
+{
+}
+
+get_impl::get_impl(const std::string& access_token, const std::string& file_id, std::ostream& content_destination)
+    : get_impl(access_token, file_id)
+{
+    parameters_["alt"] = std::string("media");
+    curl_.output(content_destination);
+}
+
+espadin::files_group::get_interface& get_impl::acknowledge_abuse(bool ack)
+{
+    parameters_["acknowledgeAbuse"] = ack;
+    return *this;
+}
+
+espadin::files_group::get_interface& get_impl::fields(const std::string& str)
+{
+    parameters_["fields"] = str;
+    return *this;
+}
+
+espadin::files_group::get_interface& get_impl::include_permissions_for_view(const std::string& str)
+{
+    parameters_["includePermissionsForView"] = str;
+    return *this;
+}
+
+std::unique_ptr<espadin::file> get_impl::run()
+{
+    auto doc = run_impl();
+    std::unique_ptr<espadin::file> result;
+    if (doc)
+        result = std::make_unique<espadin::file>(*doc->get());
+    return result;
+}
+
+espadin::files_group::get_interface& get_impl::supports_all_drives(bool sup)
+{
+    parameters_["supportsAllDrives"] = sup;
+    return *this;
+}
+
+std::string get_impl::url_stem() const
+{
+    return FILES_URL_BASE + "/" + file_id_;
+}
+
 class list_impl : public espadin::files_group::list_interface, public espadin::get_request
 {
 public:
@@ -292,6 +360,16 @@ std::unique_ptr<files_group::create_interface> files_group::create(const file& m
                                                                    const std::filesystem::path& to_upload)
 {
     return std::make_unique<create_impl>(drive_.access_token_, metadata, to_upload);
+}
+
+std::unique_ptr<files_group::get_interface> files_group::get(const std::string& file_id)
+{
+    return std::make_unique<get_impl>(drive_.access_token_, file_id);
+}
+
+std::unique_ptr<files_group::get_interface> files_group::get(const std::string& file_id, std::ostream& content_destination)
+{
+    return std::make_unique<get_impl>(drive_.access_token_, file_id, content_destination);
 }
 
 std::unique_ptr<files_group::list_interface> files_group::list()

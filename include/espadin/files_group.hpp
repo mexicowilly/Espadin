@@ -29,6 +29,18 @@ public:
         virtual create_interface& use_content_as_indexable_text(bool state) = 0;
     };
 
+    class get_interface
+    {
+    public:
+        virtual ~get_interface() = default;
+
+        virtual get_interface& acknowledge_abuse(bool ack) = 0;
+        virtual get_interface& fields(const std::string& str) = 0;
+        virtual get_interface& include_permissions_for_view(const std::string& str) = 0;
+        virtual std::unique_ptr<file> run() = 0;
+        virtual get_interface& supports_all_drives(bool sup) = 0;
+    };
+
     class list_interface
     {
     public:
@@ -73,6 +85,8 @@ public:
     std::unique_ptr<create_interface> create(const file& metadata);
     std::unique_ptr<create_interface> create(const file& metadata,
                                              const std::filesystem::path& to_upload);
+    std::unique_ptr<get_interface> get(const std::string& file_id);
+    std::unique_ptr<get_interface> get(const std::string& file_id, std::ostream& content_destination);
     std::unique_ptr<list_interface> list();
 
 private:
