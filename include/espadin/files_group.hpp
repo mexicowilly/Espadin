@@ -29,6 +29,15 @@ public:
         virtual create_interface& use_content_as_indexable_text(bool state) = 0;
     };
 
+    class delete_interface
+    {
+    public:
+        virtual ~delete_interface() = default;
+
+        virtual delete_interface& supports_all_drives(bool state) = 0;
+        virtual void run() = 0;
+    };
+
     class get_interface
     {
     public:
@@ -85,6 +94,7 @@ public:
     std::unique_ptr<create_interface> create(const file& metadata);
     std::unique_ptr<create_interface> create(const file& metadata,
                                              const std::filesystem::path& to_upload);
+    std::unique_ptr<delete_interface> del(const std::string& file_id);
     std::unique_ptr<get_interface> get(const std::string& file_id);
     std::unique_ptr<get_interface> get(const std::string& file_id, std::ostream& content_destination);
     std::unique_ptr<list_interface> list();

@@ -30,6 +30,12 @@ private:
     std::string parameters_as_url() const;
 };
 
+class delete_request : public request
+{
+protected:
+    delete_request(const std::string& access_token);
+};
+
 class get_request : public request
 {
 protected:

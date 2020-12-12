@@ -61,6 +61,12 @@ std::unique_ptr<cjson::doc> request::run_impl()
     return std::move(curl_.perform());
 }
 
+delete_request::delete_request(const std::string& access_token)
+    : request(access_token)
+{
+    curl_.set_option(CURLOPT_CUSTOMREQUEST, "DELETE", "set HTTP delete");
+}
+
 get_request::get_request(const std::string& access_token)
     : request(access_token)
 {

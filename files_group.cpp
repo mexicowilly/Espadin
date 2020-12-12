@@ -171,6 +171,41 @@ espadin::files_group::create_interface& create_impl::use_content_as_indexable_te
     return *this;
 }
 
+class delete_impl : public espadin::files_group::delete_interface, public espadin::delete_request
+{
+public:
+    delete_impl(const std::string& access_token, const std::string& file_id);
+
+    virtual void run() override;
+    virtual delete_interface& supports_all_drives(bool sup) override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+};
+
+delete_impl::delete_impl(const std::string& access_token, const std::string& file_id)
+    : espadin::delete_request(access_token),
+      file_id_(file_id)
+{
+}
+
+void delete_impl::run()
+{
+    run_impl();
+}
+
+espadin::files_group::delete_interface& delete_impl::supports_all_drives(bool state)
+{
+    parameters_["supportsAllDrives"] = state;
+    return *this;
+}
+
+std::string delete_impl::url_stem() const
+{
+    return FILES_URL_BASE + "/" + file_id_;
+}
+
 class get_impl : public espadin::files_group::get_interface, public espadin::get_request
 {
 public:
@@ -360,6 +395,11 @@ std::unique_ptr<files_group::create_interface> files_group::create(const file& m
                                                                    const std::filesystem::path& to_upload)
 {
     return std::make_unique<create_impl>(drive_.access_token_, metadata, to_upload);
+}
+
+std::unique_ptr<files_group::delete_interface> files_group::del(const std::string& file_id)
+{
+    return std::make_unique<delete_impl>(drive_.access_token_, file_id);
 }
 
 std::unique_ptr<files_group::get_interface> files_group::get(const std::string& file_id)
