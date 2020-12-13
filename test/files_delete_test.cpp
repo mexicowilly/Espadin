@@ -18,7 +18,7 @@ TEST(files_delete, one)
     auto parent = list_reply->files()[0].id().value();
     espadin::file f;
     f.parents({parent});
-    auto md = files->create(f)->run();
+    auto md = files->create(std::move(f))->run();
     ASSERT_TRUE(md->id());
     files->del(*md->id())->run();
     try

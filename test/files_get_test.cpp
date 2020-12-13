@@ -55,7 +55,7 @@ protected:
         espadin::file meta;
         meta.name(name.string())
             .parents({parent_});
-        auto reply = files_->create(meta, full)->run();
+        auto reply = files_->create(std::move(meta), full)->run();
         EXPECT_TRUE(reply);
         EXPECT_TRUE(reply->id());
         return *reply->id();

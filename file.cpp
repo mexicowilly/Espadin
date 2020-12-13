@@ -83,6 +83,7 @@ void file::to_json(cJSON& json) const
     ju.add_object("contentHints", content_hints_);
     ju.add_object_vector("contentRestrictions", content_restrictions_);
     ju.add_bool("starred", starred_);
+    ju.add_bool("trashed", trashed_);
     ju.add_time("viewedByMeTime", viewed_by_me_time_);
     ju.add_bool("writersCanShare", writers_can_share_);
 }

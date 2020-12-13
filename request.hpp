@@ -1,10 +1,13 @@
 #if !defined (ESPADIN_REQUEST_HPP__)
 #define ESPADIN_REQUEST_HPP__
 
+#include "curl.hpp"
+#include <espadin/file.hpp>
 #include <chucho/loggable.hpp>
 #include <variant>
 #include <map>
-#include "curl.hpp"
+#include <filesystem>
+#include <functional>
 
 namespace espadin
 {
@@ -19,7 +22,7 @@ protected:
 
     request(const std::string& access_token);
 
-    std::unique_ptr<cjson::doc> run_impl();
+    virtual std::unique_ptr<cjson::doc> run_impl();
     virtual std::string url_stem() const = 0;
     virtual bool is_upload() const;
 
@@ -42,10 +45,39 @@ protected:
     get_request(const std::string& access_token);
 };
 
+class patch_request : public request
+{
+protected:
+    patch_request(const std::string& access_token);
+};
+
 class post_request : public request
 {
 protected:
     post_request(const std::string& access_token);
+};
+
+class uploadable_file_request : public request
+{
+public:
+    uploadable_file_request(const std::string& access_token,
+                            file&& metadata);
+    uploadable_file_request(const std::string& access_token,
+                            file&& metadata,
+                            const std::filesystem::path& to_upload);
+
+protected:
+    virtual bool is_upload() const override;
+    virtual std::unique_ptr<cjson::doc> run_impl() override;
+
+    std::function<void (double)> progress_callback_;
+
+private:
+    std::string metadata_to_json();
+
+    bool is_upload_;
+    std::filesystem::path to_upload_;
+    file metadata_;
 };
 
 }
