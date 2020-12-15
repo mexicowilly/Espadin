@@ -11,7 +11,7 @@ TEST(files_delete, one)
     auto files = drv.files();
     auto lst = files->list();
     lst->fields("files/id")
-        .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and parents in 'root'");
+        .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
     auto list_reply = lst->run();
     ASSERT_EQ(1, list_reply->files().size());
     ASSERT_TRUE(list_reply->files()[0].id());
