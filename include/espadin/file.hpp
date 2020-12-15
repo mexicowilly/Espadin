@@ -84,6 +84,7 @@ public:
     const std::optional<long>& thumbnail_version() const;
     void to_json(cJSON& json) const;
     const std::optional<bool>& trashed() const;
+    file& trashed(bool to_set);
     const std::optional<std::chrono::system_clock::time_point>& trashed_time() const;
     const std::optional<user>& trashing_user() const;
     const std::optional<long>& version() const;
@@ -482,6 +483,12 @@ inline const std::optional<long>& file::thumbnail_version() const
 inline const std::optional<bool>& file::trashed() const
 {
     return trashed_;
+}
+
+inline file& file::trashed(bool to_set)
+{
+    trashed_ = to_set;
+    return *this;
 }
 
 inline const std::optional<std::chrono::system_clock::time_point>& file::trashed_time() const

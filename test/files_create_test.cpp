@@ -22,7 +22,7 @@ protected:
         files_ = std::move(drive_.files());
         auto lst = files_->list();
         lst->fields("files/id")
-            .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and parents in 'root'");
+            .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
         auto reply = lst->run();
         ASSERT_EQ(1, reply->files().size());
         ASSERT_TRUE(reply->files()[0].id());
@@ -40,7 +40,7 @@ TEST_F(files_create, empty)
 {
     espadin::file f;
     f.parents({parent_});
-    auto create = files_->create(f);
+    auto create = files_->create(std::move(f));
     auto reply = create->run();
     EXPECT_TRUE(reply->kind());
     EXPECT_TRUE(reply->id());
@@ -58,7 +58,7 @@ TEST_F(files_create, small)
     espadin::file md;
     md.parents({parent_})
       .name(f.filename().string());
-    auto reply = files_->create(md, f)->run();
+    auto reply = files_->create(std::move(md), f)->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
     EXPECT_TRUE(reply->id());
@@ -76,7 +76,7 @@ TEST_F(files_create, small_with_progress)
     espadin::file md;
     md.parents({parent_})
       .name(f.filename().string());
-    auto crt = files_->create(md, f);
+    auto crt = files_->create(std::move(md), f);
     crt->progress_callback([] (double pct) { std::cout << pct << '%' << std::endl; });
     auto reply = crt->run();
     std::filesystem::remove(f);
@@ -96,7 +96,7 @@ TEST_F(files_create, large)
     espadin::file md;
     md.parents({parent_})
       .name(f.filename().string());
-    auto reply = files_->create(md, f)->run();
+    auto reply = files_->create(std::move(md), f)->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
     EXPECT_TRUE(reply->id());
@@ -114,7 +114,7 @@ TEST_F(files_create, large_with_progress)
     espadin::file md;
     md.parents({parent_})
       .name(f.filename().string());
-    auto crt = files_->create(md, f);
+    auto crt = files_->create(std::move(md), f);
     crt->progress_callback([] (double pct) { std::cout << pct << '%' << std::endl; });
     auto reply = crt->run();
     std::filesystem::remove(f);

@@ -9,7 +9,7 @@ TEST(files, list)
     espadin::drive drv(ACCESS_TOKEN);
     auto fl = drv.files()->list();
     fl->fields("files/id")
-       .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and parents in 'root'");
+       .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
     auto reply = fl->run();
     ASSERT_EQ(1, reply->files().size());
     ASSERT_TRUE(reply->files()[0].id());
@@ -30,7 +30,7 @@ TEST(files, list_non_existent)
     espadin::drive drv(ACCESS_TOKEN);
     auto fl = drv.files()->list();
     fl->fields("files/id")
-       .query("name='monkey dog' and parents in 'root'");
+       .query("name='monkey dog' and 'root' in parents");
     auto reply = fl->run();
     EXPECT_TRUE(reply->files().empty());
 }

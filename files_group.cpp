@@ -10,16 +10,15 @@ namespace
 
 const std::string FILES_URL_BASE("files");
 
-class create_impl : public espadin::files_group::create_interface, public espadin::post_request
+class create_impl : public espadin::files_group::create_interface, public espadin::uploadable_file_request
 {
 public:
-    create_impl(const std::string& access_token, const espadin::file& metadata);
+    create_impl(const std::string& access_token, espadin::file&& metadata);
     create_impl(const std::string& access_token,
-                const espadin::file& metadata,
+                espadin::file&& metadata,
                 const std::filesystem::path& to_upload);
 
     virtual create_interface& ignore_default_visibility(bool state) override;
-    virtual bool is_upload() const override;
     virtual create_interface& keep_revision_forever(bool state) override;
     virtual create_interface& ocr_language(const std::string& lang) override;
     virtual create_interface& progress_callback(const std::function<void (double)>& cb) override;
@@ -27,28 +26,17 @@ public:
     virtual create_interface& supports_all_drives(bool state) override;
     virtual std::string url_stem() const override;
     virtual create_interface& use_content_as_indexable_text(bool state) override;
-
-private:
-    std::string metadata_to_json(const espadin::file& metadata);
-
-    bool is_upload_;
-    std::filesystem::path to_upload_;
-    std::function<void (double)> progress_callback_;
-    espadin::file metadata_;
 };
 
-create_impl::create_impl(const std::string& access_token, const espadin::file& metadata)
-    : espadin::post_request(access_token),
-      metadata_(metadata)
+create_impl::create_impl(const std::string& access_token, espadin::file&& metadata)
+    : espadin::uploadable_file_request(access_token, std::move(metadata))
 {
 }
 
 create_impl::create_impl(const std::string& access_token,
-                         const espadin::file& metadata,
+                         espadin::file&& metadata,
                          const std::filesystem::path& to_upload)
-    : espadin::post_request(access_token),
-      to_upload_(to_upload),
-      metadata_(metadata)
+    : espadin::uploadable_file_request(access_token, std::move(metadata), to_upload)
 {
 }
 
@@ -58,26 +46,10 @@ espadin::files_group::create_interface& create_impl::ignore_default_visibility(b
     return *this;
 }
 
-bool create_impl::is_upload() const
-{
-    return is_upload_;
-}
-
 espadin::files_group::create_interface& create_impl::keep_revision_forever(bool state)
 {
     parameters_["keepRevisionForever"] = state;
     return *this;
-}
-
-std::string create_impl::metadata_to_json(const espadin::file& metadata)
-{
-    auto doc = cJSON_CreateObject();
-    metadata.to_json(*doc);
-    auto json = cJSON_PrintUnformatted(doc);
-    cJSON_Delete(doc);
-    std::string result(json);
-    cJSON_free(json);
-    return result;
 }
 
 espadin::files_group::create_interface& create_impl::ocr_language(const std::string& lang)
@@ -94,63 +66,7 @@ espadin::files_group::create_interface& create_impl::progress_callback(const std
 
 std::unique_ptr<espadin::file> create_impl::run()
 {
-    bool is_resumable = false;
-    if (to_upload_.empty())
-    {
-        is_upload_ = false;
-        parameters_["uploadType"] = std::string("multipart");
-        curl_.post_part("application/json; charset=UTF-8", metadata_to_json(metadata_));
-    }
-    else
-    {
-        is_upload_ = true;
-        auto file_size = std::filesystem::file_size(to_upload_);
-        // This magic number is 4.5 MB. Google says only do a single
-        // upload for files less than 5 MB.
-        if (progress_callback_ || file_size > 9 * 1024 * 512)
-        {
-            is_resumable = true;
-            parameters_["uploadType"] = std::string("resumable");
-            auto json = metadata_to_json(metadata_);
-            curl_.set_option(CURLOPT_POSTFIELDSIZE, json.length(), "POST field size");
-            curl_.set_option(CURLOPT_COPYPOSTFIELDS, json.c_str(), "POST fields");
-            if (metadata_.mime_type())
-                curl_.header("X-Upload-Content-Type", *metadata_.mime_type());
-            curl_.header("X-Upload-Content-Length", std::to_string(file_size));
-            curl_.header("Content-Type", "application/json; charset=UTF-8");
-            curl_.header("Content-Length", std::to_string(json.length()));
-        }
-        else
-        {
-            parameters_["uploadType"] = std::string("multipart");
-            curl_.post_part("application/json; charset=UTF-8", metadata_to_json(metadata_));
-            if (file_size > 0)
-            {
-                std::string mime_type = metadata_.mime_type() ? *metadata_.mime_type() : "application/octet-stream";
-                std::ifstream stream(to_upload_, std::ios::in | std::ios::binary);
-                std::vector<std::byte> data(file_size);
-                stream.read(reinterpret_cast<char*>(data.data()), file_size);
-                if (!stream)
-                    throw std::runtime_error("Error reading file '" + to_upload_.string() + "'");
-                curl_.post_part(mime_type, data);
-            }
-            else
-            {
-                is_upload_ = false;
-            }
-        }
-    }
     auto doc = run_impl();
-    if (is_resumable)
-    {
-        auto auth = curl_.header("Authorization");
-        assert(auth);
-        auto loc = curl_.response_header("Location");
-        if (!loc)
-            throw std::runtime_error("Could not find required header 'Location' in HTTP response");
-        espadin::resumable_file_upload up(*auth, *loc, to_upload_, progress_callback_);
-        doc = up.run();
-    }
     return doc ? std::make_unique<espadin::file>(*doc->get()) : std::unique_ptr<espadin::file>();
 }
 
@@ -376,6 +292,110 @@ std::string list_impl::url_stem() const
     return FILES_URL_BASE;
 }
 
+class update_impl : public espadin::files_group::update_interface, public espadin::uploadable_file_request
+{
+public:
+    update_impl(const std::string& access_token,
+                const std::string& file_id,
+                espadin::file&& metadata);
+    update_impl(const std::string& access_token,
+                const std::string& file_id,
+                espadin::file&& metadata,
+                const std::filesystem::path& to_upload);
+
+    virtual update_interface& add_parents(const std::string& parents) override;
+    virtual update_interface& include_permissions_for_view(const std::string& str) override;
+    virtual update_interface& keep_revision_forever(bool flg) override;
+    virtual update_interface& ocr_language(const std::string& lang) override;
+    virtual update_interface& progress_callback(const std::function<void (double)>& cb) override;
+    virtual update_interface& remove_parents(const std::string& parents) override;
+    virtual std::unique_ptr<espadin::file> run() override;
+    virtual update_interface& supports_all_drives(bool flg) override;
+    virtual std::string url_stem() const override;
+    virtual update_interface& use_content_as_indexable_text(bool flg) override;
+
+private:
+    std::string file_id_;
+};
+
+update_impl::update_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         espadin::file&& metadata)
+    : espadin::uploadable_file_request(access_token, std::move(metadata)),
+      file_id_(file_id)
+{
+    curl_.set_option(CURLOPT_CUSTOMREQUEST, "PATCH", "set HTTP patch");
+}
+
+update_impl::update_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         espadin::file&& metadata,
+                         const std::filesystem::path& to_upload)
+    : espadin::uploadable_file_request(access_token, std::move(metadata), to_upload),
+      file_id_(file_id)
+{
+    curl_.set_option(CURLOPT_CUSTOMREQUEST, "PATCH", "set HTTP patch");
+}
+
+espadin::files_group::update_interface& update_impl::add_parents(const std::string& parents)
+{
+    parameters_["addParents"] = parents;
+    return *this;
+}
+
+espadin::files_group::update_interface& update_impl::include_permissions_for_view(const std::string& str)
+{
+    parameters_["includePermissionsForView"] = str;
+    return *this;
+}
+
+espadin::files_group::update_interface& update_impl::keep_revision_forever(bool flg)
+{
+    parameters_["keepRevisionForever"] = flg;
+    return *this;
+}
+
+espadin::files_group::update_interface& update_impl::ocr_language(const std::string& lang)
+{
+    parameters_["ocrLanguage"] = lang;
+    return *this;
+}
+
+espadin::files_group::update_interface& update_impl::progress_callback(const std::function<void (double)>& cb)
+{
+    progress_callback_ = cb;
+    return *this;
+}
+
+espadin::files_group::update_interface& update_impl::remove_parents(const std::string& parents)
+{
+    parameters_["removeParents"] = parents;
+    return *this;
+}
+
+std::unique_ptr<espadin::file> update_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<espadin::file>(*doc->get()) : std::unique_ptr<espadin::file>();
+}
+
+espadin::files_group::update_interface& update_impl::supports_all_drives(bool flg)
+{
+    parameters_["supportsAllDrives"] = flg;
+    return *this;
+}
+
+std::string update_impl::url_stem() const
+{
+    return FILES_URL_BASE + "/" + file_id_;
+}
+
+espadin::files_group::update_interface& update_impl::use_content_as_indexable_text(bool flg)
+{
+    parameters_["useContentAsIndexableText"] = flg;
+    return *this;
+}
+
 }
 
 namespace espadin
@@ -386,15 +406,15 @@ files_group::files_group(drive& drv)
 {
 }
 
-std::unique_ptr<files_group::create_interface> files_group::create(const file& metadata)
+std::unique_ptr<files_group::create_interface> files_group::create(file&& metadata)
 {
-    return std::make_unique<create_impl>(drive_.access_token_, metadata);
+    return std::make_unique<create_impl>(drive_.access_token_, std::move(metadata));
 }
 
-std::unique_ptr<files_group::create_interface> files_group::create(const file& metadata,
+std::unique_ptr<files_group::create_interface> files_group::create(file&& metadata,
                                                                    const std::filesystem::path& to_upload)
 {
-    return std::make_unique<create_impl>(drive_.access_token_, metadata, to_upload);
+    return std::make_unique<create_impl>(drive_.access_token_, std::move(metadata), to_upload);
 }
 
 std::unique_ptr<files_group::delete_interface> files_group::del(const std::string& file_id)
@@ -415,6 +435,19 @@ std::unique_ptr<files_group::get_interface> files_group::get(const std::string& 
 std::unique_ptr<files_group::list_interface> files_group::list()
 {
     return std::make_unique<list_impl>(drive_.access_token_);
+}
+
+std::unique_ptr<files_group::update_interface> files_group::update(const std::string& file_id,
+                                                                   file&& metadata)
+{
+    return std::make_unique<update_impl>(drive_.access_token_, file_id, std::move(metadata));
+}
+
+std::unique_ptr<files_group::update_interface> files_group::update(const std::string& file_id,
+                                                                   file&& metadata,
+                                                                   const std::filesystem::path& to_upload)
+{
+    return std::make_unique<update_impl>(drive_.access_token_, file_id, std::move(metadata), to_upload);
 }
 
 files_group::list_interface::reply::reply(const cJSON& json)

@@ -86,18 +86,39 @@ public:
         virtual list_interface& supports_all_drives(bool flg) = 0;
     };
 
+    class update_interface
+    {
+    public:
+        virtual ~update_interface() = default;
+
+        virtual update_interface& add_parents(const std::string& parents) = 0;
+        virtual update_interface& include_permissions_for_view(const std::string& str) = 0;
+        virtual update_interface& keep_revision_forever(bool flg) = 0;
+        virtual update_interface& ocr_language(const std::string& lang) = 0;
+        virtual update_interface& progress_callback(const std::function<void (double)>& cb) = 0;
+        virtual update_interface& remove_parents(const std::string& parents) = 0;
+        virtual std::unique_ptr<file> run() = 0;
+        virtual update_interface& supports_all_drives(bool flg) = 0;
+        virtual update_interface& use_content_as_indexable_text(bool flg) = 0;
+    };
+
     files_group(drive& drv);
     files_group(const files_group&) = delete;
 
     files_group& operator= (const files_group&) = delete;
 
-    std::unique_ptr<create_interface> create(const file& metadata);
-    std::unique_ptr<create_interface> create(const file& metadata,
+    std::unique_ptr<create_interface> create(file&& metadata);
+    std::unique_ptr<create_interface> create(file&& metadata,
                                              const std::filesystem::path& to_upload);
     std::unique_ptr<delete_interface> del(const std::string& file_id);
     std::unique_ptr<get_interface> get(const std::string& file_id);
     std::unique_ptr<get_interface> get(const std::string& file_id, std::ostream& content_destination);
     std::unique_ptr<list_interface> list();
+    std::unique_ptr<update_interface> update(const std::string& file_id,
+                                             file&& metadata);
+    std::unique_ptr<update_interface> update(const std::string& file_id,
+                                             file&& metadata,
+                                             const std::filesystem::path& to_upload);
 
 private:
     drive& drive_;

@@ -23,7 +23,7 @@ protected:
         files_ = std::move(drive_.files());
         auto lst = files_->list();
         lst->fields("files/id")
-            .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and parents in 'root'");
+            .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
         auto reply = lst->run();
         ASSERT_EQ(1, reply->files().size());
         ASSERT_TRUE(reply->files()[0].id());
@@ -55,7 +55,7 @@ protected:
         espadin::file meta;
         meta.name(name.string())
             .parents({parent_});
-        auto reply = files_->create(meta, full)->run();
+        auto reply = files_->create(std::move(meta), full)->run();
         EXPECT_TRUE(reply);
         EXPECT_TRUE(reply->id());
         return *reply->id();
