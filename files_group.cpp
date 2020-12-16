@@ -122,6 +122,42 @@ std::string delete_impl::url_stem() const
     return FILES_URL_BASE + "/" + file_id_;
 }
 
+class export_impl : public espadin::files_group::export_interface, public espadin::get_request
+{
+public:
+    export_impl(const std::string& access_token,
+                const std::string& file_id,
+                const std::string& mime_type,
+                std::ostream& content_destination);
+
+    virtual void run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+};
+
+export_impl::export_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         const std::string& mime_type,
+                         std::ostream& content_destination)
+    : espadin::get_request(access_token),
+      file_id_(file_id)
+{
+    parameters_["mimeType"] = mime_type;
+    curl_.output(content_destination);
+}
+
+void export_impl::run()
+{
+    run_impl();
+}
+
+std::string export_impl::url_stem() const
+{
+    return FILES_URL_BASE + "/" + file_id_ + "/export";
+}
+
 class get_impl : public espadin::files_group::get_interface, public espadin::get_request
 {
 public:
@@ -420,6 +456,13 @@ std::unique_ptr<files_group::create_interface> files_group::create(file&& metada
 std::unique_ptr<files_group::delete_interface> files_group::del(const std::string& file_id)
 {
     return std::make_unique<delete_impl>(drive_.access_token_, file_id);
+}
+
+std::unique_ptr<files_group::export_interface> files_group::exp(const std::string& file_id,
+                                                                const std::string& mime_type,
+                                                                std::ostream& content_destination)
+{
+    return std::make_unique<export_impl>(drive_.access_token_, file_id, mime_type, content_destination);
 }
 
 std::unique_ptr<files_group::get_interface> files_group::get(const std::string& file_id)
