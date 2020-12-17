@@ -11,9 +11,10 @@ TEST(files, list)
     fl->fields("files/id")
        .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
     auto reply = fl->run();
-    ASSERT_EQ(1, reply->files().size());
-    ASSERT_TRUE(reply->files()[0].id());
-    std::cout << "Found folder 'Espadin Test': " << reply->files()[0].id().value() << std::endl;
+    ASSERT_TRUE(reply->files());
+    ASSERT_EQ(1, reply->files()->size());
+    ASSERT_TRUE(reply->files()->at(0).id());
+    std::cout << "Found folder 'Espadin Test': " << reply->files()->at(0).id().value() << std::endl;
 //    do
 //    {
 //        reply = fl->run();
@@ -32,5 +33,6 @@ TEST(files, list_non_existent)
     fl->fields("files/id")
        .query("name='monkey dog' and 'root' in parents");
     auto reply = fl->run();
-    EXPECT_TRUE(reply->files().empty());
+    ASSERT_TRUE(reply->files());
+    EXPECT_TRUE(reply->files()->empty());
 }

@@ -25,9 +25,10 @@ protected:
         lst->fields("files/id")
             .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
         auto reply = lst->run();
-        ASSERT_EQ(1, reply->files().size());
-        ASSERT_TRUE(reply->files()[0].id());
-        parent_ = reply->files()[0].id().value();
+        ASSERT_TRUE(reply->files());
+        ASSERT_EQ(1, reply->files()->size());
+        ASSERT_TRUE(reply->files()->at(0).id());
+        parent_ = reply->files()->at(0).id().value();
     }
 
     bool files_are_equal(const std::filesystem::path& partial, const std::filesystem::path& full)

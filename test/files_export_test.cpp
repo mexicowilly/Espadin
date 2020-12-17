@@ -24,9 +24,10 @@ protected:
         lst->fields("files/id")
             .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
         auto reply = lst->run();
-        ASSERT_EQ(1, reply->files().size());
-        ASSERT_TRUE(reply->files()[0].id());
-        parent_ = reply->files()[0].id().value();
+        ASSERT_TRUE(reply->files());
+        ASSERT_EQ(1, reply->files()->size());
+        ASSERT_TRUE(reply->files()->at(0).id());
+        parent_ = reply->files()->at(0).id().value();
         std::filesystem::path f(std::filesystem::temp_directory_path() / "export.txt");
         std::ofstream out(f);
         out << "My dog has fleas";

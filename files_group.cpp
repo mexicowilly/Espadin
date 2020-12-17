@@ -2,6 +2,7 @@
 #include <espadin/drive.hpp>
 #include "resumable_file_upload.hpp"
 #include "request.hpp"
+#include "cjson_util.hpp"
 #include <fstream>
 #include <cassert>
 #include <cstring>
@@ -240,6 +241,52 @@ std::string export_impl::url_stem() const
     return FILES_URL_BASE + "/" + file_id_ + "/export";
 }
 
+class generate_ids_impl : public espadin::files_group::generate_ids_interface, public espadin::get_request
+{
+public:
+    generate_ids_impl(const std::string& access_token);
+
+    virtual generate_ids_interface& count(std::size_t number) override;
+    virtual generate_ids_interface& fields(const std::string& str) override;
+    virtual std::unique_ptr<reply> run() override;
+    virtual generate_ids_interface& space(const std::string& str) override;
+    virtual std::string url_stem() const override;
+};
+
+generate_ids_impl::generate_ids_impl(const std::string& access_token)
+    : espadin::get_request(access_token)
+{
+}
+
+espadin::files_group::generate_ids_interface& generate_ids_impl::count(std::size_t number)
+{
+    parameters_["count"] = number;
+    return *this;
+}
+
+espadin::files_group::generate_ids_interface& generate_ids_impl::fields(const std::string& str)
+{
+    parameters_["fields"] = str;
+    return *this;
+}
+
+std::unique_ptr<espadin::files_group::generate_ids_interface::reply> generate_ids_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<reply>(*doc->get()) : std::unique_ptr<reply>();
+}
+
+espadin::files_group::generate_ids_interface& generate_ids_impl::space(const std::string& str)
+{
+    parameters_["space"] = str;
+    return *this;
+}
+
+std::string generate_ids_impl::url_stem() const
+{
+    return FILES_URL_BASE + "/generateIds";
+}
+
 class get_impl : public espadin::files_group::get_interface, public espadin::get_request
 {
 public:
@@ -390,7 +437,7 @@ espadin::files_group::list_interface& list_impl::query(const std::string& str)
 std::unique_ptr<list_impl::reply> list_impl::run()
 {
     auto doc = run_impl();
-    return std::make_unique<reply>(*doc->get());
+    return doc ? std::make_unique<reply>(*doc->get()) : std::unique_ptr<reply>();
 }
 
 espadin::files_group::list_interface& list_impl::spaces(const std::string& str)
@@ -552,6 +599,11 @@ std::unique_ptr<files_group::export_interface> files_group::exp(const std::strin
     return std::make_unique<export_impl>(drive_.access_token_, file_id, mime_type, content_destination);
 }
 
+std::unique_ptr<files_group::generate_ids_interface> files_group::generate_ids()
+{
+    return std::make_unique<generate_ids_impl>(drive_.access_token_);
+}
+
 std::unique_ptr<files_group::get_interface> files_group::get(const std::string& file_id)
 {
     return std::make_unique<get_impl>(drive_.access_token_, file_id);
@@ -580,24 +632,21 @@ std::unique_ptr<files_group::update_interface> files_group::update(const std::st
     return std::make_unique<update_impl>(drive_.access_token_, file_id, std::move(metadata), to_upload);
 }
 
+files_group::generate_ids_interface::reply::reply(const cJSON& json)
+{
+    cjson::util ju(const_cast<cJSON&>(json));
+    ju.set_string("kind", kind_);
+    ju.set_string("space", space_);
+    ju.set_string_vector("ids", ids_);
+}
+
 files_group::list_interface::reply::reply(const cJSON& json)
 {
-    auto obj = cJSON_GetObjectItemCaseSensitive(&json, "kind");
-    if (obj != nullptr)
-        kind_ = obj->valuestring;
-    obj = cJSON_GetObjectItemCaseSensitive(&json, "nextPageToken");
-    if (obj != nullptr)
-        next_page_token_ = obj->valuestring;
-    obj = cJSON_GetObjectItemCaseSensitive(&json, "incompleteSearch");
-    if (obj != nullptr)
-        incomplete_search_ = obj->type == cJSON_True;
-    obj = cJSON_GetObjectItemCaseSensitive(&json, "files");
-    if (obj != nullptr && cJSON_IsArray(obj))
-    {
-        cJSON* item;
-        cJSON_ArrayForEach(item, obj)
-            files_.emplace_back(*item);
-    }
+    cjson::util ju(const_cast<cJSON&>(json));
+    ju.set_string("kind", kind_);
+    ju.set_string("nextPageToken", next_page_token_);
+    ju.set_bool("incompleteSearch", incomplete_search_);
+    ju.set_object_vector("files", files_);
 }
 
 }

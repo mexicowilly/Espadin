@@ -60,6 +60,32 @@ public:
         virtual void run() = 0;
     };
 
+    class generate_ids_interface
+    {
+    public:
+        class reply
+        {
+        public:
+            reply(const cJSON& json);
+
+            const std::optional<std::vector<std::string>>& ids() const;
+            const std::optional<std::string>& kind() const;
+            const std::optional<std::string>& space() const;
+
+        private:
+            std::optional<std::string> kind_;
+            std::optional<std::string> space_;
+            std::optional<std::vector<std::string>> ids_;
+        };
+
+        virtual ~generate_ids_interface() = default;
+
+        virtual generate_ids_interface& count(std::size_t number) = 0;
+        virtual generate_ids_interface& fields(const std::string& str) = 0;
+        virtual std::unique_ptr<reply> run() = 0;
+        virtual generate_ids_interface& space(const std::string& str) = 0;
+    };
+
     class get_interface
     {
     public:
@@ -80,16 +106,16 @@ public:
         public:
             reply(const cJSON& json);
 
-            const std::vector<file>& files() const;
-            bool incomplete_search() const;
-            const std::string& kind() const;
-            const std::string& next_page_token() const;
+            const std::optional<std::vector<file>>& files() const;
+            const std::optional<bool>& incomplete_search() const;
+            const std::optional<std::string>& kind() const;
+            const std::optional<std::string>& next_page_token() const;
 
         private:
-            std::string kind_;
-            std::string next_page_token_;
-            std::vector<file> files_;
-            bool incomplete_search_;
+            std::optional<std::string> kind_;
+            std::optional<std::string> next_page_token_;
+            std::optional<std::vector<file>> files_;
+            std::optional<bool> incomplete_search_;
         };
 
         virtual ~list_interface() = default;
@@ -137,6 +163,7 @@ public:
     std::unique_ptr<export_interface> exp(const std::string& file_id,
                                           const std::string& mime_type,
                                           std::ostream& content_destination);
+    std::unique_ptr<generate_ids_interface> generate_ids();
     std::unique_ptr<get_interface> get(const std::string& file_id);
     std::unique_ptr<get_interface> get(const std::string& file_id,
                                        std::ostream& content_destination);
@@ -151,22 +178,37 @@ private:
     drive& drive_;
 };
 
-inline const std::vector<file>& files_group::list_interface::reply::files() const
+inline const std::optional<std::vector<std::string>>& files_group::generate_ids_interface::reply::ids() const
 {
-    return files_;
+    return ids_;
 }
 
-inline bool files_group::list_interface::reply::incomplete_search() const
-{
-    return incomplete_search_;
-}
-
-inline const std::string& files_group::list_interface::reply::kind() const
+inline const std::optional<std::string>& files_group::generate_ids_interface::reply::kind() const
 {
     return kind_;
 }
 
-inline const std::string& files_group::list_interface::reply::next_page_token() const
+inline const std::optional<std::string>& files_group::generate_ids_interface::reply::space() const
+{
+    return space_;
+}
+
+inline const std::optional<std::vector<file>>& files_group::list_interface::reply::files() const
+{
+    return files_;
+}
+
+inline const std::optional<bool>& files_group::list_interface::reply::incomplete_search() const
+{
+    return incomplete_search_;
+}
+
+inline const std::optional<std::string>& files_group::list_interface::reply::kind() const
+{
+    return kind_;
+}
+
+inline const std::optional<std::string>& files_group::list_interface::reply::next_page_token() const
 {
     return next_page_token_;
 }

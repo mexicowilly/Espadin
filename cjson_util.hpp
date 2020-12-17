@@ -150,7 +150,7 @@ void util::set_object_vector(const char* const name,
                              std::optional<std::vector<type>>& to_set)
 {
     to_set.reset();
-    auto array_obj = cJSON_GetObjectItemCaseSensitive(&json_, "owners");
+    auto array_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
     if (array_obj != nullptr)
     {
         if (cJSON_IsArray(array_obj))

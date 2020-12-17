@@ -13,9 +13,10 @@ TEST(files_delete, one)
     lst->fields("files/id")
         .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
     auto list_reply = lst->run();
-    ASSERT_EQ(1, list_reply->files().size());
-    ASSERT_TRUE(list_reply->files()[0].id());
-    auto parent = list_reply->files()[0].id().value();
+    ASSERT_TRUE(list_reply->files());
+    ASSERT_EQ(1, list_reply->files()->size());
+    ASSERT_TRUE(list_reply->files()->at(0).id());
+    auto parent = list_reply->files()->at(0).id().value();
     espadin::file f;
     f.parents({parent});
     auto md = files->create(std::move(f))->run();
