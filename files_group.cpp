@@ -4,11 +4,93 @@
 #include "request.hpp"
 #include <fstream>
 #include <cassert>
+#include <cstring>
 
 namespace
 {
 
 const std::string FILES_URL_BASE("files");
+
+class copy_impl : public espadin::files_group::copy_interface, public espadin::post_request
+{
+public:
+    copy_impl(const std::string& access_token, const std::string& file_id, espadin::file&& metadata);
+
+    virtual copy_interface& fields(const std::string& str) override;
+    virtual copy_interface& ignore_default_visibility(bool state) override;
+    virtual copy_interface& include_permissions_for_view(const std::string& str) override;
+    virtual copy_interface& keep_revision_forever(bool state) override;
+    virtual copy_interface& ocr_language(const std::string& lang) override;
+    virtual std::unique_ptr<espadin::file> run() override;
+    virtual copy_interface& supports_all_drives(bool state) override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+};
+
+copy_impl::copy_impl(const std::string& access_token, const std::string& file_id, espadin::file&& metadata)
+    : espadin::post_request(access_token),
+      file_id_(file_id)
+{
+    auto doc = cJSON_CreateObject();
+    metadata.to_json(*doc);
+    auto json = cJSON_PrintUnformatted(doc);
+    cJSON_Delete(doc);
+    auto len = std::strlen(json);
+    curl_.header("Content-Type", "application/json; charset=UTF-8");
+    curl_.header("Content-Length", std::to_string(len));
+    curl_.set_option(CURLOPT_POSTFIELDSIZE, len, "POST field size");
+    curl_.set_option(CURLOPT_COPYPOSTFIELDS, json, "copy POST fields");
+    cJSON_free(json);
+}
+
+espadin::files_group::copy_interface& copy_impl::fields(const std::string& str)
+{
+    parameters_["fields"] = str;
+    return *this;
+}
+
+espadin::files_group::copy_interface& copy_impl::ignore_default_visibility(bool state)
+{
+    parameters_["ignoreDefaultVisibility"] = state;
+    return *this;
+}
+
+espadin::files_group::copy_interface& copy_impl::include_permissions_for_view(const std::string& str)
+{
+    parameters_["includePermissionsForView"] = str;
+    return *this;
+}
+
+espadin::files_group::copy_interface& copy_impl::keep_revision_forever(bool state)
+{
+    parameters_["keepRevisionForever"] = state;
+    return *this;
+}
+
+espadin::files_group::copy_interface& copy_impl::ocr_language(const std::string& lang)
+{
+    parameters_["ocrLanguage"] = lang;
+    return *this;
+}
+
+std::unique_ptr<espadin::file> copy_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<espadin::file>(*doc->get()) : std::unique_ptr<espadin::file>();
+}
+
+espadin::files_group::copy_interface& copy_impl::supports_all_drives(bool state)
+{
+    parameters_["supportsAllDrives"] = state;
+    return *this;
+}
+
+std::string copy_impl::url_stem() const
+{
+    return FILES_URL_BASE + "/" + file_id_ + "/copy";
+}
 
 class create_impl : public espadin::files_group::create_interface, public espadin::uploadable_file_request
 {
@@ -440,6 +522,11 @@ namespace espadin
 files_group::files_group(drive& drv)
     : drive_(drv)
 {
+}
+
+std::unique_ptr<files_group::copy_interface> files_group::copy(const std::string& file_id, file&& metadata)
+{
+    return std::make_unique<copy_impl>(drive_.access_token_, file_id, std::move(metadata));
 }
 
 std::unique_ptr<files_group::create_interface> files_group::create(file&& metadata)

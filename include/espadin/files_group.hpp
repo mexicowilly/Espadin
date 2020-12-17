@@ -15,6 +15,20 @@ class drive;
 class ESPADIN_EXPORT files_group
 {
 public:
+    class copy_interface
+    {
+    public:
+        virtual ~copy_interface() = default;
+
+        virtual copy_interface& fields(const std::string& str) = 0;
+        virtual copy_interface& ignore_default_visibility(bool state) = 0;
+        virtual copy_interface& include_permissions_for_view(const std::string& str) = 0;
+        virtual copy_interface& keep_revision_forever(bool state) = 0;
+        virtual copy_interface& ocr_language(const std::string& lang) = 0;
+        virtual std::unique_ptr<file> run() = 0;
+        virtual copy_interface& supports_all_drives(bool state) = 0;
+    };
+
     class create_interface
     {
     public:
@@ -115,6 +129,7 @@ public:
 
     files_group& operator= (const files_group&) = delete;
 
+    std::unique_ptr<copy_interface> copy(const std::string& file_id, file&& metadata);
     std::unique_ptr<create_interface> create(file&& metadata);
     std::unique_ptr<create_interface> create(file&& metadata,
                                              const std::filesystem::path& to_upload);

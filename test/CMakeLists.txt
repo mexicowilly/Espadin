@@ -1,4 +1,5 @@
 ADD_EXECUTABLE(unit-test
+               files_copy_test.cpp
                files_create_test.cpp
                files_delete_test.cpp
                files_export_test.cpp

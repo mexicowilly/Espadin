@@ -32,7 +32,9 @@ protected:
         out << "My dog has fleas";
         out.close();
         espadin::file metadata;
-        metadata.name(f.filename().string()).mime_type("application/vnd.google-apps.document");
+        metadata.name(f.filename().string())
+                .mime_type("application/vnd.google-apps.document")
+                .parents({parent_});
         auto crt_reply = files_->create(std::move(metadata), f)->run();
         ASSERT_TRUE(crt_reply->id());
         to_export_ = *crt_reply->id();
@@ -43,7 +45,7 @@ protected:
     {
         espadin::file metadata;
         metadata.trashed(true);
-        files_->update(to_export_, std::move(metadata));
+        files_->update(to_export_, std::move(metadata))->run();
     }
 
     espadin::drive drive_;
