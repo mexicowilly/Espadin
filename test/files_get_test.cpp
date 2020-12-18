@@ -67,6 +67,13 @@ protected:
         std::filesystem::remove(std::filesystem::temp_directory_path() / name);
     }
 
+    void remove(const std::string& file_id)
+    {
+        espadin::file f;
+        f.trashed(true);
+        drive_.files()->update(file_id, std::move(f))->run();
+    }
+
     std::unique_ptr<espadin::files_group> files_;
 
 private:
@@ -87,6 +94,7 @@ TEST_F(files_get, meta)
     ASSERT_TRUE(reply);
     ASSERT_TRUE(reply->name());
     EXPECT_STREQ(fname.filename().c_str(), reply->name()->c_str());
+    remove(id);
 }
 
 TEST_F(files_get, contents)
@@ -102,4 +110,5 @@ TEST_F(files_get, contents)
     EXPECT_TRUE(files_are_equal(fname, dl_name));
     std::filesystem::remove(dl_name);
     delete_file(fname);
+    remove(id);
 }

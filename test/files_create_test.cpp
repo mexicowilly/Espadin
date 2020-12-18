@@ -30,6 +30,13 @@ protected:
         parent_ = reply->files()->at(0).id().value();
     }
 
+    void remove(const std::string& file_id)
+    {
+        espadin::file f;
+        f.trashed(true);
+        files_->update(file_id, std::move(f))->run();
+    }
+
     espadin::drive drive_;
     std::unique_ptr<espadin::files_group> files_;
     std::string parent_;
@@ -44,9 +51,10 @@ TEST_F(files_create, empty)
     auto create = files_->create(std::move(f));
     auto reply = create->run();
     EXPECT_TRUE(reply->kind());
-    EXPECT_TRUE(reply->id());
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
+    ASSERT_TRUE(reply->id());
+    remove(*reply->id());
 }
 
 TEST_F(files_create, small)
@@ -62,9 +70,10 @@ TEST_F(files_create, small)
     auto reply = files_->create(std::move(md), f)->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
-    EXPECT_TRUE(reply->id());
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
+    ASSERT_TRUE(reply->id());
+    remove(*reply->id());
 }
 
 TEST_F(files_create, small_with_progress)
@@ -82,9 +91,10 @@ TEST_F(files_create, small_with_progress)
     auto reply = crt->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
-    EXPECT_TRUE(reply->id());
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
+    ASSERT_TRUE(reply->id());
+    remove(*reply->id());
 }
 
 TEST_F(files_create, large)
@@ -100,9 +110,10 @@ TEST_F(files_create, large)
     auto reply = files_->create(std::move(md), f)->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
-    EXPECT_TRUE(reply->id());
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
+    ASSERT_TRUE(reply->id());
+    remove(*reply->id());
 }
 
 TEST_F(files_create, large_with_progress)
@@ -120,7 +131,8 @@ TEST_F(files_create, large_with_progress)
     auto reply = crt->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
-    EXPECT_TRUE(reply->id());
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
+    ASSERT_TRUE(reply->id());
+    remove(*reply->id());
 }
