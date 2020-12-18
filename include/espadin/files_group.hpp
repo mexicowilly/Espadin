@@ -160,6 +160,7 @@ public:
     std::unique_ptr<create_interface> create(file&& metadata,
                                              const std::filesystem::path& to_upload);
     std::unique_ptr<delete_interface> del(const std::string& file_id);
+    void empty_trash();
     std::unique_ptr<export_interface> exp(const std::string& file_id,
                                           const std::string& mime_type,
                                           std::ostream& content_destination);

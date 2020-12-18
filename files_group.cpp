@@ -205,6 +205,29 @@ std::string delete_impl::url_stem() const
     return FILES_URL_BASE + "/" + file_id_;
 }
 
+class empty_trash_impl : public espadin::delete_request
+{
+public:
+    empty_trash_impl(const std::string& access_token);
+    void run();
+    virtual std::string url_stem() const override;
+};
+
+empty_trash_impl::empty_trash_impl(const std::string& access_token)
+    : espadin::delete_request(access_token)
+{
+}
+
+void empty_trash_impl::run()
+{
+    run_impl();
+}
+
+std::string empty_trash_impl::url_stem() const
+{
+    return FILES_URL_BASE + "/trash";
+}
+
 class export_impl : public espadin::files_group::export_interface, public espadin::get_request
 {
 public:
@@ -590,6 +613,12 @@ std::unique_ptr<files_group::create_interface> files_group::create(file&& metada
 std::unique_ptr<files_group::delete_interface> files_group::del(const std::string& file_id)
 {
     return std::make_unique<delete_impl>(drive_.access_token_, file_id);
+}
+
+void files_group::empty_trash()
+{
+    empty_trash_impl et(drive_.access_token_);
+    et.run();
 }
 
 std::unique_ptr<files_group::export_interface> files_group::exp(const std::string& file_id,
