@@ -41,6 +41,8 @@ public:
                    std::optional<std::vector<std::byte>>& to_set);
     void set_map(const char* const name,
                  std::optional<std::map<std::string, std::string>>& to_set);
+    void set_map_of_string_array(const char* const name,
+                                 std::optional<std::map<std::string, std::vector<std::string>>>& to_set);
     template <typename type>
     void set_number(const char* const name,
                     type& to_set);
@@ -110,6 +112,8 @@ void util::set_number(const char* const name,
     {
         if (cJSON_IsNumber(num_obj))
             to_set = num_obj->valuedouble;
+        else if (cJSON_IsString(num_obj))
+            to_set = std::stoul(num_obj->valuestring);
         else
             throw std::runtime_error(std::string("JSON field '") + name + "' is not a number");
     }

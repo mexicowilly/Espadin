@@ -13,10 +13,12 @@ INCLUDE_DIRECTORIES(include
                     "${ESPADIN_CHUCHO_INCLUDE_DIR}")
 
 LIST(APPEND ESPADIN_PUBLIC_HEADERS
+     include/espadin/about.hpp
      include/espadin/capabilities.hpp
      include/espadin/content_hints.hpp
      include/espadin/content_restrictions.hpp
      include/espadin/drive.hpp
+     include/espadin/drive_theme.hpp
      include/espadin/exception.hpp
      "${CMAKE_BINARY_DIR}/espadin/export.hpp"
      include/espadin/file.hpp
@@ -25,10 +27,12 @@ LIST(APPEND ESPADIN_PUBLIC_HEADERS
      include/espadin/image_media_metadata.hpp
      include/espadin/permission.hpp
      include/espadin/shortcut_details.hpp
+     include/espadin/storage_quota.hpp
      include/espadin/user.hpp
      include/espadin/video_media_metadata.hpp)
 
 LIST(APPEND ESPADIN_SOURCES
+     about.cpp
      calendar.hpp
      capabilities.cpp
      content_hints.cpp
@@ -41,6 +45,7 @@ LIST(APPEND ESPADIN_SOURCES
      cjson_util.hpp
      curl.cpp
      curl.hpp
+     drive_theme.cpp
      exception.cpp
      drive.cpp
      file.cpp
@@ -55,6 +60,7 @@ LIST(APPEND ESPADIN_SOURCES
      resumable_file_upload.cpp
      resumable_file_upload.hpp
      shortcut_details.cpp
+     storage_quota.cpp
      user.cpp
      video_media_metadata.cpp
      ${ESPADIN_PUBLIC_HEADERS})

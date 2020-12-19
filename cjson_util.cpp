@@ -133,6 +133,37 @@ void util::set_map(const char* const name,
     }
 }
 
+void util::set_map_of_string_array(const char* const name,
+                                   std::optional<std::map<std::string, std::vector<std::string>>>& to_set)
+{
+    to_set.reset();
+    auto map_obj = cJSON_GetObjectItemCaseSensitive(&json_, name);
+    if (map_obj != nullptr)
+    {
+        if (cJSON_IsObject(map_obj))
+        {
+            to_set.emplace();
+            cJSON* item;
+            cJSON_ArrayForEach(item, map_obj)
+            {
+                if (cJSON_IsArray(item))
+                {
+                    cJSON* sub;
+                    std::vector<std::string> vec;
+                    cJSON_ArrayForEach(sub, item)
+                    {
+                        if (cJSON_IsString(sub))
+                            vec.emplace_back(sub->valuestring);
+                        else
+                            throw std::runtime_error(std::string("The child of '") + item->string + "' item '" + item->string + "' is not a string");
+                    }
+                    to_set->emplace(item->string, vec);
+                }
+            }
+        }
+    }
+}
+
 void util::set_string(const char* const name,
                       std::optional<std::string>& to_set)
 {
