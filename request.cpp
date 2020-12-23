@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cassert>
 #include <fstream>
+#include <cstring>
 
 namespace
 {
@@ -181,6 +182,17 @@ std::unique_ptr<cjson::doc> uploadable_file_request::run_impl()
         doc = up.run();
     }
     return doc;
+}
+
+void post_request::to_post(const cJSON& json)
+{
+    auto str = cJSON_PrintUnformatted(&json);
+    auto len = std::strlen(str);
+    curl_.header("Content-Type", "application/json; charset=UTF-8");
+    curl_.header("Content-Length", std::to_string(len));
+    curl_.set_option(CURLOPT_POSTFIELDSIZE, len, "POST field size");
+    curl_.set_option(CURLOPT_COPYPOSTFIELDS, str, "copy POST fields");
+    cJSON_free(str);
 }
 
 }

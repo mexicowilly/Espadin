@@ -15,6 +15,8 @@ INCLUDE_DIRECTORIES(include
 LIST(APPEND ESPADIN_PUBLIC_HEADERS
      include/espadin/about.hpp
      include/espadin/capabilities.hpp
+     include/espadin/comment.hpp
+     include/espadin/comments_group.hpp
      include/espadin/content_hints.hpp
      include/espadin/content_restrictions.hpp
      include/espadin/drive.hpp
@@ -26,6 +28,7 @@ LIST(APPEND ESPADIN_PUBLIC_HEADERS
      include/espadin/finalize.hpp
      include/espadin/image_media_metadata.hpp
      include/espadin/permission.hpp
+     include/espadin/reply.hpp
      include/espadin/shortcut_details.hpp
      include/espadin/storage_quota.hpp
      include/espadin/user.hpp
@@ -35,6 +38,8 @@ LIST(APPEND ESPADIN_SOURCES
      about.cpp
      calendar.hpp
      capabilities.cpp
+     comment.cpp
+     comments_group.cpp
      content_hints.cpp
      content_restrictions.cpp
      cJSON.c
@@ -55,6 +60,7 @@ LIST(APPEND ESPADIN_SOURCES
      garbage_cleaner.hpp
      image_media_metadata.cpp
      permission.cpp
+     reply.cpp
      request.cpp
      request.hpp
      resumable_file_upload.cpp

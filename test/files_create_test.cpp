@@ -1,45 +1,13 @@
 #include <gtest/gtest.h>
-#include <espadin/drive.hpp>
+#include "base_test.hpp"
 #include <iostream>
 #include <fstream>
-
-extern std::string ACCESS_TOKEN;
 
 namespace
 {
 
-class files_create : public testing::Test
+class files_create : public testing::Test, public espadin::test::base
 {
-public:
-    files_create()
-        : drive_(ACCESS_TOKEN)
-    {
-    }
-
-protected:
-    virtual void SetUp() override
-    {
-        files_ = std::move(drive_.files());
-        auto lst = files_->list();
-        lst->fields("files/id")
-            .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
-        auto reply = lst->run();
-        ASSERT_TRUE(reply->files());
-        ASSERT_EQ(1, reply->files()->size());
-        ASSERT_TRUE(reply->files()->at(0).id());
-        parent_ = reply->files()->at(0).id().value();
-    }
-
-    void remove(const std::string& file_id)
-    {
-        espadin::file f;
-        f.trashed(true);
-        files_->update(file_id, std::move(f))->run();
-    }
-
-    espadin::drive drive_;
-    std::unique_ptr<espadin::files_group> files_;
-    std::string parent_;
 };
 
 }
@@ -47,14 +15,14 @@ protected:
 TEST_F(files_create, empty)
 {
     espadin::file f;
-    f.parents({parent_});
-    auto create = files_->create(std::move(f));
+    f.parents({parent_id});
+    auto create = drive_.files()->create(std::move(f));
     auto reply = create->run();
     EXPECT_TRUE(reply->kind());
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
     ASSERT_TRUE(reply->id());
-    remove(*reply->id());
+    trash(*reply->id());
 }
 
 TEST_F(files_create, small)
@@ -65,15 +33,15 @@ TEST_F(files_create, small)
         stream << static_cast<char>((i % 32) + 32);
     stream.close();
     espadin::file md;
-    md.parents({parent_})
+    md.parents({parent_id})
       .name(f.filename().string());
-    auto reply = files_->create(std::move(md), f)->run();
+    auto reply = drive_.files()->create(std::move(md), f)->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
     ASSERT_TRUE(reply->id());
-    remove(*reply->id());
+    trash(*reply->id());
 }
 
 TEST_F(files_create, small_with_progress)
@@ -84,9 +52,9 @@ TEST_F(files_create, small_with_progress)
         stream << static_cast<char>((i % 32) + 32);
     stream.close();
     espadin::file md;
-    md.parents({parent_})
+    md.parents({parent_id})
       .name(f.filename().string());
-    auto crt = files_->create(std::move(md), f);
+    auto crt = drive_.files()->create(std::move(md), f);
     crt->progress_callback([] (double pct) { std::cout << pct << '%' << std::endl; });
     auto reply = crt->run();
     std::filesystem::remove(f);
@@ -94,7 +62,7 @@ TEST_F(files_create, small_with_progress)
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
     ASSERT_TRUE(reply->id());
-    remove(*reply->id());
+    trash(*reply->id());
 }
 
 TEST_F(files_create, large)
@@ -105,15 +73,15 @@ TEST_F(files_create, large)
         stream << static_cast<char>((i % 32) + 32);
     stream.close();
     espadin::file md;
-    md.parents({parent_})
+    md.parents({parent_id})
       .name(f.filename().string());
-    auto reply = files_->create(std::move(md), f)->run();
+    auto reply = drive_.files()->create(std::move(md), f)->run();
     std::filesystem::remove(f);
     EXPECT_TRUE(reply->kind());
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
     ASSERT_TRUE(reply->id());
-    remove(*reply->id());
+    trash(*reply->id());
 }
 
 TEST_F(files_create, large_with_progress)
@@ -124,9 +92,9 @@ TEST_F(files_create, large_with_progress)
         stream << static_cast<char>((i % 32) + 32);
     stream.close();
     espadin::file md;
-    md.parents({parent_})
+    md.parents({parent_id})
       .name(f.filename().string());
-    auto crt = files_->create(std::move(md), f);
+    auto crt = drive_.files()->create(std::move(md), f);
     crt->progress_callback([] (double pct) { std::cout << pct << '%' << std::endl; });
     auto reply = crt->run();
     std::filesystem::remove(f);
@@ -134,5 +102,5 @@ TEST_F(files_create, large_with_progress)
     EXPECT_TRUE(reply->name());
     EXPECT_TRUE(reply->mime_type());
     ASSERT_TRUE(reply->id());
-    remove(*reply->id());
+    trash(*reply->id());
 }

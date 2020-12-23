@@ -36,14 +36,8 @@ copy_impl::copy_impl(const std::string& access_token, const std::string& file_id
 {
     auto doc = cJSON_CreateObject();
     metadata.to_json(*doc);
-    auto json = cJSON_PrintUnformatted(doc);
+    to_post(*doc);
     cJSON_Delete(doc);
-    auto len = std::strlen(json);
-    curl_.header("Content-Type", "application/json; charset=UTF-8");
-    curl_.header("Content-Length", std::to_string(len));
-    curl_.set_option(CURLOPT_POSTFIELDSIZE, len, "POST field size");
-    curl_.set_option(CURLOPT_COPYPOSTFIELDS, json, "copy POST fields");
-    cJSON_free(json);
 }
 
 espadin::files_group::copy_interface& copy_impl::fields(const std::string& str)

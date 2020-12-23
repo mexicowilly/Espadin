@@ -55,6 +55,8 @@ class post_request : public request
 {
 protected:
     post_request(const std::string& access_token);
+
+    void to_post(const cJSON& json);
 };
 
 class uploadable_file_request : public request

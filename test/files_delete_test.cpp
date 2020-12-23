@@ -1,24 +1,21 @@
 #include <gtest/gtest.h>
-#include <espadin/drive.hpp>
+#include "base_test.hpp"
 #include <espadin/exception.hpp>
-#include <iostream>
 
-extern std::string ACCESS_TOKEN;
-
-TEST(files_delete, one)
+namespace
 {
-    espadin::drive drv(ACCESS_TOKEN);
-    auto files = drv.files();
-    auto lst = files->list();
-    lst->fields("files/id")
-        .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
-    auto list_reply = lst->run();
-    ASSERT_TRUE(list_reply->files());
-    ASSERT_EQ(1, list_reply->files()->size());
-    ASSERT_TRUE(list_reply->files()->at(0).id());
-    auto parent = list_reply->files()->at(0).id().value();
+
+class files_delete : public testing::Test, public espadin::test::base
+{
+};
+
+}
+
+TEST_F(files_delete, one)
+{
+    auto files = drive_.files();
     espadin::file f;
-    f.parents({parent});
+    f.parents({parent_id});
     auto md = files->create(std::move(f))->run();
     ASSERT_TRUE(md->id());
     files->del(*md->id())->run();

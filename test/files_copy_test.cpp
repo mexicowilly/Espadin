@@ -1,40 +1,24 @@
 #include <gtest/gtest.h>
-#include <espadin/drive.hpp>
+#include "base_test.hpp"
 #include <iostream>
 #include <fstream>
-
-extern std::string ACCESS_TOKEN;
 
 namespace
 {
 
-class files_copy : public testing::Test
+class files_copy : public testing::Test, public espadin::test::base
 {
-public:
-    files_copy()
-        : drive_(ACCESS_TOKEN)
-    {
-    }
-
 protected:
     virtual void SetUp() override
     {
-        files_ = std::move(drive_.files());
-        auto lst = files_->list();
-        lst->fields("files/id")
-        .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
-        auto reply = lst->run();
-        ASSERT_TRUE(reply->files());
-        ASSERT_EQ(1, reply->files()->size());
-        ASSERT_TRUE(reply->files()->at(0).id());
-        parent_ = reply->files()->at(0).id().value();
+        files_ = drive_.files();
         std::filesystem::path f(std::filesystem::temp_directory_path() / "copy.txt");
         std::ofstream out(f);
         out << "My dog has fleas";
         out.close();
         espadin::file metadata;
         metadata.name(f.filename().string())
-                .parents({parent_});
+                .parents({parent_id});
         auto crt_reply = files_->create(std::move(metadata), f)->run();
         ASSERT_TRUE(crt_reply->id());
         to_copy_ = *crt_reply->id();
@@ -43,20 +27,12 @@ protected:
 
     virtual void TearDown() override
     {
-        espadin::file metadata;
-        metadata.trashed(true);
-        files_->update(to_copy_, std::move(metadata))->run();
+        trash(to_copy_);
         if (!copied_.empty())
-        {
-            espadin::file metadata2;
-            metadata2.trashed(true);
-            files_->update(copied_, std::move(metadata2))->run();
-        }
+            trash(copied_);
     }
 
-    espadin::drive drive_;
     std::unique_ptr<espadin::files_group> files_;
-    std::string parent_;
     std::string to_copy_;
     std::string copied_;
 };

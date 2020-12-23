@@ -1,34 +1,18 @@
 #include <gtest/gtest.h>
-#include <espadin/drive.hpp>
+#include "base_test.hpp"
 #include <iostream>
 #include <fstream>
 #include <iterator>
 
-extern std::string ACCESS_TOKEN;
-
 namespace
 {
 
-class files_get : public testing::Test
+class files_get : public testing::Test, public espadin::test::base
 {
-public:
-    files_get()
-        : drive_(ACCESS_TOKEN)
-    {
-    }
-
 protected:
     virtual void SetUp() override
     {
-        files_ = std::move(drive_.files());
-        auto lst = files_->list();
-        lst->fields("files/id")
-            .query("name='Espadin Test' and mimeType='application/vnd.google-apps.folder' and 'root' in parents");
-        auto reply = lst->run();
-        ASSERT_TRUE(reply->files());
-        ASSERT_EQ(1, reply->files()->size());
-        ASSERT_TRUE(reply->files()->at(0).id());
-        parent_ = reply->files()->at(0).id().value();
+        files_ = drive_.files();
     }
 
     bool files_are_equal(const std::filesystem::path& partial, const std::filesystem::path& full)
@@ -55,7 +39,7 @@ protected:
         stream.close();
         espadin::file meta;
         meta.name(name.string())
-            .parents({parent_});
+            .parents({parent_id});
         auto reply = files_->create(std::move(meta), full)->run();
         EXPECT_TRUE(reply);
         EXPECT_TRUE(reply->id());
@@ -67,18 +51,7 @@ protected:
         std::filesystem::remove(std::filesystem::temp_directory_path() / name);
     }
 
-    void remove(const std::string& file_id)
-    {
-        espadin::file f;
-        f.trashed(true);
-        drive_.files()->update(file_id, std::move(f))->run();
-    }
-
     std::unique_ptr<espadin::files_group> files_;
-
-private:
-    espadin::drive drive_;
-    std::string parent_;
 };
 
 }
@@ -94,7 +67,7 @@ TEST_F(files_get, meta)
     ASSERT_TRUE(reply);
     ASSERT_TRUE(reply->name());
     EXPECT_STREQ(fname.filename().c_str(), reply->name()->c_str());
-    remove(id);
+    trash(id);
 }
 
 TEST_F(files_get, contents)
@@ -110,5 +83,5 @@ TEST_F(files_get, contents)
     EXPECT_TRUE(files_are_equal(fname, dl_name));
     std::filesystem::remove(dl_name);
     delete_file(fname);
-    remove(id);
+    trash(id);
 }
