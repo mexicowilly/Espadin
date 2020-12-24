@@ -3,6 +3,8 @@ ADD_EXECUTABLE(unit-test
                base_test.cpp
                base_test.hpp
                comments_create_test.cpp
+               comments_delete_test.cpp
+               comments_get_test.cpp
                files_copy_test.cpp
                files_create_test.cpp
                files_delete_test.cpp

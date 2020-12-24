@@ -19,12 +19,5 @@ TEST_F(files_delete, one)
     auto md = files->create(std::move(f))->run();
     ASSERT_TRUE(md->id());
     files->del(*md->id())->run();
-    try
-    {
-        files->get(*md->id())->run();
-    }
-    catch (const espadin::drive_exception& e)
-    {
-        ASSERT_EQ(404, e.code());
-    }
+    EXPECT_THROW(files->get(*md->id())->run(), espadin::drive_exception);
 }

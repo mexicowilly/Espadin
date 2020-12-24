@@ -22,6 +22,22 @@ public:
         virtual create_interface& quoted_file_content(const std::string& str) = 0;
     };
 
+    class delete_interface
+    {
+    public:
+        virtual ~delete_interface() = default;
+
+        virtual void run() = 0;
+    };
+
+    class get_interface
+    {
+    public:
+        virtual ~get_interface() = default;
+
+        virtual std::unique_ptr<comment> run() = 0;
+    };
+
     comments_group(drive& drv);
     comments_group(const comments_group&) = delete;
 
@@ -30,6 +46,10 @@ public:
     std::unique_ptr<create_interface> create(const std::string& file_id,
                                              const std::string& content,
                                              const std::string& fields);
+    std::unique_ptr<delete_interface> del(const std::string& file_id, const std::string& comment_id);
+    std::unique_ptr<get_interface> get(const std::string& file_id,
+                                       const std::string& comment_id,
+                                       const std::string& fields);
 
 private:
     drive& drive_;

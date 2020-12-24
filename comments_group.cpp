@@ -68,6 +68,78 @@ std::string create_impl::url_stem() const
     return make_url_base(file_id_);
 }
 
+class delete_impl : public espadin::comments_group::delete_interface, public espadin::delete_request
+{
+public:
+    delete_impl(const std::string& access_token,
+                const std::string& file_id,
+                const std::string& comment_id);
+
+    virtual void run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string comment_id_;
+};
+
+delete_impl::delete_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         const std::string& comment_id)
+    : espadin::delete_request(access_token),
+      file_id_(file_id),
+      comment_id_(comment_id)
+{
+}
+
+void delete_impl::run()
+{
+    run_impl();
+}
+
+std::string delete_impl::url_stem() const
+{
+    return make_url_base(file_id_) + "/" + comment_id_;
+}
+
+class get_impl : public espadin::comments_group::get_interface, public espadin::get_request
+{
+public:
+    get_impl(const std::string& access_token,
+             const std::string& file_id,
+             const std::string& comment_id,
+             const std::string& fields);
+
+    virtual std::unique_ptr<espadin::comment> run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string comment_id_;
+};
+
+get_impl::get_impl(const std::string& access_token,
+                   const std::string& file_id,
+                   const std::string& comment_id,
+                   const std::string& fields)
+    : espadin::get_request(access_token),
+      file_id_(file_id),
+      comment_id_(comment_id)
+{
+    parameters_["fields"] = fields;
+}
+
+std::unique_ptr<espadin::comment> get_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<espadin::comment>(*doc->get()) : std::unique_ptr<espadin::comment>();
+}
+
+std::string get_impl::url_stem() const
+{
+    return make_url_base(file_id_) + "/" + comment_id_;
+}
+
 }
 
 namespace espadin
@@ -83,6 +155,19 @@ std::unique_ptr<comments_group::create_interface> comments_group::create(const s
                                                                          const std::string& fields)
 {
     return std::make_unique<create_impl>(drive_.access_token_, file_id, content, fields);
+}
+
+std::unique_ptr<comments_group::delete_interface> comments_group::del(const std::string& file_id,
+                                                                      const std::string& comment_id)
+{
+    return std::make_unique<delete_impl>(drive_.access_token_, file_id, comment_id);
+}
+
+std::unique_ptr<comments_group::get_interface> comments_group::get(const std::string& file_id,
+                                                                   const std::string& comment_id,
+                                                                   const std::string& fields)
+{
+    return std::make_unique<get_impl>(drive_.access_token_, file_id, comment_id, fields);
 }
 
 }
