@@ -1,6 +1,7 @@
 #include <espadin/comments_group.hpp>
 #include <espadin/drive.hpp>
 #include "request.hpp"
+#include "cjson_util.hpp"
 
 namespace
 {
@@ -140,6 +141,73 @@ std::string get_impl::url_stem() const
     return make_url_base(file_id_) + "/" + comment_id_;
 }
 
+class list_impl : public espadin::comments_group::list_interface, public espadin::get_request
+{
+public:
+    list_impl(const std::string& access_token,
+              const std::string& file_id,
+              const std::string& fields);
+
+    virtual list_interface& include_deleted(bool to_set) override;
+    virtual list_interface& page_size(std::size_t num) override;
+    virtual list_interface& page_token(const std::string& tok) override;
+    virtual std::unique_ptr<reply> run() override;
+    virtual list_interface& start_modified_time(const std::chrono::system_clock::time_point& when) override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+};
+
+list_impl::list_impl(const std::string& access_token,
+                     const std::string& file_id,
+                     const std::string& fields)
+    : espadin::get_request(access_token),
+      file_id_(file_id)
+{
+    parameters_["fields"] = fields;
+}
+
+espadin::comments_group::list_interface& list_impl::include_deleted(bool to_set)
+{
+    parameters_["includeDeleted"] = to_set;
+    return *this;
+}
+
+espadin::comments_group::list_interface& list_impl::page_size(std::size_t num)
+{
+    parameters_["pageSize"] = num;
+    return *this;
+}
+
+espadin::comments_group::list_interface& list_impl::page_token(const std::string& tok)
+{
+    parameters_["pageToken"] = tok;
+    return *this;
+}
+
+std::unique_ptr<espadin::comments_group::list_interface::reply> list_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<reply>(*doc->get()) : std::unique_ptr<reply>();
+}
+
+espadin::comments_group::list_interface& list_impl::start_modified_time(const std::chrono::system_clock::time_point& when)
+{
+    auto obj = cJSON_CreateObject();
+    espadin::cjson::util ju(*obj);
+    ju.add_time("time", when);
+    auto item = cJSON_GetObjectItemCaseSensitive(obj, "time");
+    parameters_["startModifiedTime"] = std::string(item->valuestring);
+    cJSON_Delete(obj);
+    return *this;
+}
+
+std::string list_impl::url_stem() const
+{
+    return make_url_base(file_id_);
+}
+
 }
 
 namespace espadin
@@ -168,6 +236,20 @@ std::unique_ptr<comments_group::get_interface> comments_group::get(const std::st
                                                                    const std::string& fields)
 {
     return std::make_unique<get_impl>(drive_.access_token_, file_id, comment_id, fields);
+}
+
+std::unique_ptr<comments_group::list_interface> comments_group::list(const std::string& file_id,
+                                                                     const std::string& fields)
+{
+    return std::make_unique<list_impl>(drive_.access_token_, file_id, fields);
+}
+
+comments_group::list_interface::reply::reply(const cJSON& json)
+{
+    cjson::util ju(const_cast<cJSON&>(json));
+    ju.set_string("kind", kind_);
+    ju.set_string("nextPageToken", next_page_token_);
+    ju.set_object_vector("comments", comments_);
 }
 
 }

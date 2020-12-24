@@ -38,6 +38,33 @@ public:
         virtual std::unique_ptr<comment> run() = 0;
     };
 
+    class list_interface
+    {
+    public:
+        class reply
+        {
+        public:
+            reply(const cJSON& json);
+
+            const std::optional<std::vector<comment>>& comments() const;
+            const std::optional<std::string>& kind() const;
+            const std::optional<std::string>& next_page_token() const;
+
+        private:
+            std::optional<std::string> kind_;
+            std::optional<std::string> next_page_token_;
+            std::optional<std::vector<comment>> comments_;
+        };
+
+        virtual ~list_interface() = default;
+
+        virtual list_interface& include_deleted(bool to_set) = 0;
+        virtual list_interface& page_size(std::size_t num) = 0;
+        virtual list_interface& page_token(const std::string& tok) = 0;
+        virtual std::unique_ptr<reply> run() = 0;
+        virtual list_interface& start_modified_time(const std::chrono::system_clock::time_point& when) = 0;
+    };
+
     comments_group(drive& drv);
     comments_group(const comments_group&) = delete;
 
@@ -50,10 +77,27 @@ public:
     std::unique_ptr<get_interface> get(const std::string& file_id,
                                        const std::string& comment_id,
                                        const std::string& fields);
+    std::unique_ptr<list_interface> list(const std::string& file_id,
+                                         const std::string& fields);
 
 private:
     drive& drive_;
 };
+
+inline const std::optional<std::vector<comment>>& comments_group::list_interface::reply::comments() const
+{
+    return comments_;
+}
+
+inline const std::optional<std::string>& comments_group::list_interface::reply::kind() const
+{
+    return kind_;
+}
+
+inline const std::optional<std::string>& comments_group::list_interface::reply::next_page_token() const
+{
+    return next_page_token_;
+}
 
 }
 

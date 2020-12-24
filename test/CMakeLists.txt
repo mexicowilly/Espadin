@@ -5,6 +5,7 @@ ADD_EXECUTABLE(unit-test
                comments_create_test.cpp
                comments_delete_test.cpp
                comments_get_test.cpp
+               comments_list_test.cpp
                files_copy_test.cpp
                files_create_test.cpp
                files_delete_test.cpp
