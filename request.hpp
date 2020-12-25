@@ -45,18 +45,18 @@ protected:
     get_request(const std::string& access_token);
 };
 
-class patch_request : public request
-{
-protected:
-    patch_request(const std::string& access_token);
-};
-
 class post_request : public request
 {
 protected:
     post_request(const std::string& access_token);
 
     void to_post(const cJSON& json);
+};
+
+class patch_request : public post_request
+{
+protected:
+    patch_request(const std::string& access_token);
 };
 
 class uploadable_file_request : public request

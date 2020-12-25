@@ -65,6 +65,14 @@ public:
         virtual list_interface& start_modified_time(const std::chrono::system_clock::time_point& when) = 0;
     };
 
+    class update_interface
+    {
+    public:
+        virtual ~update_interface() = default;
+
+        virtual std::unique_ptr<comment> run() = 0;
+    };
+
     comments_group(drive& drv);
     comments_group(const comments_group&) = delete;
 
@@ -79,6 +87,10 @@ public:
                                        const std::string& fields);
     std::unique_ptr<list_interface> list(const std::string& file_id,
                                          const std::string& fields);
+    std::unique_ptr<update_interface> update(const std::string& file_id,
+                                             const std::string& comment_id,
+                                             const std::string& content,
+                                             const std::string& fields);
 
 private:
     drive& drive_;

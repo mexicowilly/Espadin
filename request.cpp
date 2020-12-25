@@ -77,8 +77,9 @@ get_request::get_request(const std::string& access_token)
 }
 
 patch_request::patch_request(const std::string& access_token)
-    : request(access_token)
+    : post_request(access_token)
 {
+    curl_.set_option(CURLOPT_POST, 0, "no post");
     curl_.set_option(CURLOPT_CUSTOMREQUEST, "PATCH", "set HTTP patch");
 }
 
