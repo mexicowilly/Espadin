@@ -259,43 +259,39 @@ std::string update_impl::url_stem() const
 namespace espadin
 {
 
-comments_group::comments_group(drive& drv)
-    : drive_(drv)
+comments_group::comments_group(drive& drv, const std::string& file_id)
+    : drive_(drv),
+      file_id_(file_id)
 {
 }
 
-std::unique_ptr<comments_group::create_interface> comments_group::create(const std::string& file_id,
-                                                                         const std::string& content,
+std::unique_ptr<comments_group::create_interface> comments_group::create(const std::string& content,
                                                                          const std::string& fields)
 {
-    return std::make_unique<create_impl>(drive_.access_token_, file_id, content, fields);
+    return std::make_unique<create_impl>(drive_.access_token_, file_id_, content, fields);
 }
 
-std::unique_ptr<comments_group::delete_interface> comments_group::del(const std::string& file_id,
-                                                                      const std::string& comment_id)
+std::unique_ptr<comments_group::delete_interface> comments_group::del(const std::string& comment_id)
 {
-    return std::make_unique<delete_impl>(drive_.access_token_, file_id, comment_id);
+    return std::make_unique<delete_impl>(drive_.access_token_, file_id_, comment_id);
 }
 
-std::unique_ptr<comments_group::get_interface> comments_group::get(const std::string& file_id,
-                                                                   const std::string& comment_id,
+std::unique_ptr<comments_group::get_interface> comments_group::get(const std::string& comment_id,
                                                                    const std::string& fields)
 {
-    return std::make_unique<get_impl>(drive_.access_token_, file_id, comment_id, fields);
+    return std::make_unique<get_impl>(drive_.access_token_, file_id_, comment_id, fields);
 }
 
-std::unique_ptr<comments_group::list_interface> comments_group::list(const std::string& file_id,
-                                                                     const std::string& fields)
+std::unique_ptr<comments_group::list_interface> comments_group::list(const std::string& fields)
 {
-    return std::make_unique<list_impl>(drive_.access_token_, file_id, fields);
+    return std::make_unique<list_impl>(drive_.access_token_, file_id_, fields);
 }
 
-std::unique_ptr<comments_group::update_interface> comments_group::update(const std::string& file_id,
-                                                                         const std::string& comment_id,
+std::unique_ptr<comments_group::update_interface> comments_group::update(const std::string& comment_id,
                                                                          const std::string& content,
                                                                          const std::string& fields)
 {
-    return std::make_unique<update_impl>(drive_.access_token_, file_id, comment_id, content, fields);
+    return std::make_unique<update_impl>(drive_.access_token_, file_id_, comment_id, content, fields);
 }
 
 comments_group::list_interface::reply::reply(const cJSON& json)

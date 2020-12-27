@@ -30,12 +30,12 @@ protected:
 
 TEST_F(comments_update, content)
 {
-    auto cmts = drive_.comments();
-    auto reply = cmts->create(file_id_, "This is a mistake", "id")->run();
+    auto cmts = drive_.comments(file_id_);
+    auto reply = cmts->create("This is a mistake", "id")->run();
     ASSERT_TRUE(reply);
     ASSERT_TRUE(reply->id());
     auto comment_id = *reply->id();
-    reply = cmts->update(file_id_, comment_id, "This is fixed", "content")->run();
+    reply = cmts->update(comment_id, "This is fixed", "content")->run();
     ASSERT_TRUE(reply);
     ASSERT_TRUE(reply->content());
     EXPECT_STREQ("This is fixed", reply->content()->c_str());

@@ -46,14 +46,19 @@ std::unique_ptr<about> drive::about_drive(const std::string& fields)
     return ab.run();
 }
 
-std::unique_ptr<comments_group> drive::comments()
+std::unique_ptr<comments_group> drive::comments(const std::string& file_id)
 {
-    return std::make_unique<comments_group>(*this);
+    return std::make_unique<comments_group>(*this, file_id);
 }
 
 std::unique_ptr<files_group> drive::files()
 {
     return std::make_unique<files_group>(*this);
+}
+
+std::unique_ptr<replies_group> drive::replies(const std::string& file_id, const std::string& comment_id)
+{
+    return std::make_unique<replies_group>(*this, file_id, comment_id);
 }
 
 }

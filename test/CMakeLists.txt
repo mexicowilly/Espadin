@@ -15,5 +15,6 @@ ADD_EXECUTABLE(unit-test
                files_get_test.cpp
                files_list_test.cpp
                files_update_test.cpp
-               harness.cpp)
+               harness.cpp
+               replies_create_test.cpp)
 TARGET_LINK_LIBRARIES(unit-test espadin GTest::GTest)

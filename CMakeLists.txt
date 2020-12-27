@@ -28,6 +28,7 @@ LIST(APPEND ESPADIN_PUBLIC_HEADERS
      include/espadin/finalize.hpp
      include/espadin/image_media_metadata.hpp
      include/espadin/permission.hpp
+     include/espadin/replies_group.hpp
      include/espadin/reply.hpp
      include/espadin/shortcut_details.hpp
      include/espadin/storage_quota.hpp
@@ -60,6 +61,7 @@ LIST(APPEND ESPADIN_SOURCES
      garbage_cleaner.hpp
      image_media_metadata.cpp
      permission.cpp
+     replies_group.cpp
      reply.cpp
      request.cpp
      request.hpp

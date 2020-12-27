@@ -4,6 +4,7 @@
 #include <espadin/files_group.hpp>
 #include <espadin/about.hpp>
 #include <espadin/comments_group.hpp>
+#include <espadin/replies_group.hpp>
 
 namespace espadin
 {
@@ -14,12 +15,14 @@ public:
     drive(const std::string& access_token);
 
     std::unique_ptr<about> about_drive(const std::string& fields);
-    std::unique_ptr<comments_group> comments();
+    std::unique_ptr<comments_group> comments(const std::string& file_id);
     std::unique_ptr<files_group> files();
+    std::unique_ptr<replies_group> replies(const std::string& file_id, const std::string& comment_id);
 
 private:
     friend class comments_group;
     friend class files_group;
+    friend class replies_group;
 
     std::string access_token_;
 };

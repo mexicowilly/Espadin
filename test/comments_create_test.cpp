@@ -30,8 +30,8 @@ protected:
 
 TEST_F(comments_create, add_one)
 {
-    auto cmts = drive_.comments();
-    auto reply = cmts->create(file_id_, "This is a comment", "*")->run();
+    auto cmts = drive_.comments(file_id_);
+    auto reply = cmts->create("This is a comment", "*")->run();
     EXPECT_TRUE(reply->kind());
     EXPECT_TRUE(reply->id());
     EXPECT_TRUE(reply->created_time());

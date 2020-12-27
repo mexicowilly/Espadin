@@ -31,9 +31,9 @@ protected:
 
 TEST_F(comments_delete, delete_one)
 {
-    auto cmts = drive_.comments();
-    auto reply = cmts->create(file_id_, "This is a comment", "id")->run();
+    auto cmts = drive_.comments(file_id_);
+    auto reply = cmts->create("This is a comment", "id")->run();
     ASSERT_TRUE(reply->id());
-    cmts->del(file_id_, *reply->id())->run();
-    EXPECT_THROW(cmts->get(file_id_, *reply->id(), "id")->run(), espadin::drive_exception);
+    cmts->del(*reply->id())->run();
+    EXPECT_THROW(cmts->get(*reply->id(), "id")->run(), espadin::drive_exception);
 }

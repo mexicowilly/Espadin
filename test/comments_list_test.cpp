@@ -18,10 +18,10 @@ protected:
         ASSERT_TRUE(reply);
         ASSERT_TRUE(reply->id());
         file_id_ = *reply->id();
-        auto cmts = drive_.comments();
+        auto cmts = drive_.comments(file_id_);
         for (int i = 0; i < 5; i++)
         {
-            auto r2 = cmts->create(file_id_, std::to_string(i), "id")->run();
+            auto r2 = cmts->create(std::to_string(i), "id")->run();
             ASSERT_TRUE(r2);
             ASSERT_TRUE(r2->id());
         }
@@ -39,7 +39,7 @@ protected:
 
 TEST_F(comments_list, pages)
 {
-    auto lst = drive_.comments()->list(file_id_, "*");
+    auto lst = drive_.comments(file_id_)->list("*");
     auto reply = lst->page_size(3).run();
     ASSERT_TRUE(reply);
     ASSERT_TRUE(reply->next_page_token());

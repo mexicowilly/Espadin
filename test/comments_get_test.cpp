@@ -31,10 +31,10 @@ protected:
 
 TEST_F(comments_get, get_one)
 {
-    auto cmts = drive_.comments();
-    auto reply = cmts->create(file_id_, "This is a comment", "id")->run();
+    auto cmts = drive_.comments(file_id_);
+    auto reply = cmts->create("This is a comment", "id")->run();
     ASSERT_TRUE(reply->id());
-    auto reply2 = cmts->get(file_id_, *reply->id(), "*")->run();
+    auto reply2 = cmts->get(*reply->id(), "*")->run();
     EXPECT_TRUE(reply2->kind());
     EXPECT_TRUE(reply2->id());
     EXPECT_TRUE(reply2->created_time());

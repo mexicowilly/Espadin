@@ -18,4 +18,11 @@ reply::reply(const cJSON& json)
     ju.set_string("action", action_);
 }
 
+void reply::to_json(cJSON& json) const
+{
+    cjson::util ju(json);
+    ju.add_string("action", action_);
+    ju.add_string("content", content_);
+}
+
 }
