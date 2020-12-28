@@ -56,6 +56,93 @@ std::string create_impl::url_stem() const
     return make_url_stem(file_id_, comment_id_);
 }
 
+class delete_impl : public espadin::replies_group::delete_interface, public espadin::delete_request
+{
+public:
+    delete_impl(const std::string& access_token,
+                const std::string& file_id,
+                const std::string& comment_id,
+                const std::string& reply_id);
+
+    virtual void run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string comment_id_;
+    std::string reply_id_;
+};
+
+delete_impl::delete_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         const std::string& comment_id,
+                         const std::string& reply_id)
+    : espadin::delete_request(access_token),
+      file_id_(file_id),
+      comment_id_(comment_id),
+      reply_id_(reply_id)
+{
+}
+
+void delete_impl::run()
+{
+    run_impl();
+}
+
+std::string delete_impl::url_stem() const
+{
+    return make_url_stem(file_id_, comment_id_) +  "/" + reply_id_;
+}
+
+class get_impl : public espadin::replies_group::get_interface, public espadin::get_request
+{
+public:
+    get_impl(const std::string& access_token,
+             const std::string& file_id,
+             const std::string& comment_id,
+             const std::string& reply_id,
+             const std::string& fields);
+
+    virtual get_interface& include_deleted(bool to_set) override;
+    virtual std::unique_ptr<espadin::reply> run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string comment_id_;
+    std::string reply_id_;
+};
+
+get_impl::get_impl(const std::string& access_token,
+                   const std::string& file_id,
+                   const std::string& comment_id,
+                   const std::string& reply_id,
+                   const std::string& fields)
+    : espadin::get_request(access_token),
+      file_id_(file_id),
+      comment_id_(comment_id),
+      reply_id_(reply_id)
+{
+    parameters_["fields"] = fields;
+}
+
+espadin::replies_group::get_interface& get_impl::include_deleted(bool to_set)
+{
+    parameters_["includeDeleted"] = to_set;
+    return *this;
+}
+
+std::unique_ptr<espadin::reply> get_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<espadin::reply>(*doc->get()) : std::unique_ptr<espadin::reply>();
+}
+
+std::string get_impl::url_stem() const
+{
+    return make_url_stem(file_id_, comment_id_) +  "/" + reply_id_;
+}
+
 }
 
 namespace espadin
@@ -71,6 +158,16 @@ replies_group::replies_group(drive& drv, const std::string& file_id, const std::
 std::unique_ptr<replies_group::create_interface> replies_group::create(reply&& to_create, const std::string& fields)
 {
     return std::make_unique<create_impl>(drive_.access_token_, file_id_, comment_id_, std::move(to_create), fields);
+}
+
+std::unique_ptr<replies_group::delete_interface> replies_group::del(const std::string& reply_id)
+{
+    return std::make_unique<delete_impl>(drive_.access_token_, file_id_, comment_id_, reply_id);
+}
+
+std::unique_ptr<replies_group::get_interface> replies_group::get(const std::string& reply_id, const std::string& fields)
+{
+    return std::make_unique<get_impl>(drive_.access_token_, file_id_, comment_id_, reply_id, fields);
 }
 
 }
