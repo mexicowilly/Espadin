@@ -204,6 +204,58 @@ std::string list_impl::url_stem() const
     return make_url_stem(file_id_, comment_id_);
 }
 
+class update_impl : public espadin::replies_group::update_interface, public espadin::patch_request
+{
+public:
+    update_impl(const std::string& access_token,
+                const std::string& file_id,
+                const std::string& comment_id,
+                const std::string& reply_id,
+                const std::string& content,
+                const std::string& fields);
+
+    virtual std::unique_ptr<espadin::reply> run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string comment_id_;
+    std::string reply_id_;
+    std::string content_;
+};
+
+update_impl::update_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         const std::string& comment_id,
+                         const std::string& reply_id,
+                         const std::string& content,
+                         const std::string& fields)
+: espadin::patch_request(access_token),
+  file_id_(file_id),
+  comment_id_(comment_id),
+  reply_id_(reply_id),
+  content_(content)
+{
+    parameters_["fields"] = fields;
+}
+
+std::unique_ptr<espadin::reply> update_impl::run()
+{
+    espadin::reply r;
+    r.content(content_);
+    auto json = cJSON_CreateObject();
+    r.to_json(*json);
+    to_post(*json);
+    cJSON_Delete(json);
+    auto doc = run_impl();
+    return doc ? std::make_unique<espadin::reply>(*doc->get()) : std::unique_ptr<espadin::reply>();
+}
+
+std::string update_impl::url_stem() const
+{
+    return make_url_stem(file_id_, comment_id_) + "/" + reply_id_;
+}
+
 }
 
 namespace espadin
@@ -234,6 +286,18 @@ std::unique_ptr<replies_group::get_interface> replies_group::get(const std::stri
 std::unique_ptr<replies_group::list_interface> replies_group::list(const std::string& fields)
 {
     return std::make_unique<list_impl>(drive_.access_token_, file_id_, comment_id_, fields);
+}
+
+std::unique_ptr<replies_group::update_interface> replies_group::update(const std::string& reply_id,
+                                                                       const std::string& content,
+                                                                       const std::string& fields)
+{
+    return std::make_unique<update_impl>(drive_.access_token_,
+                                         file_id_,
+                                         comment_id_,
+                                         reply_id,
+                                         content,
+                                         fields);
 }
 
 replies_group::list_interface::reply::reply(const cJSON& json)

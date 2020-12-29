@@ -60,6 +60,7 @@ TEST_F(replies_create, resolve)
     espadin::reply data;
     data.action("resolve");
     auto result = rep->create(std::move(data), "*")->run();
+    ASSERT_TRUE(result);
     ASSERT_TRUE(result->kind());
     EXPECT_STREQ("drive#reply", result->kind()->c_str());
     EXPECT_TRUE(result->id());
