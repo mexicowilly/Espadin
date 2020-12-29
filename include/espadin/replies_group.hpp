@@ -3,6 +3,7 @@
 
 #include <espadin/reply.hpp>
 #include <memory>
+#include <vector>
 
 namespace espadin
 {
@@ -37,6 +38,32 @@ public:
         virtual std::unique_ptr<reply> run() = 0;
     };
 
+    class list_interface
+    {
+    public:
+        class reply
+        {
+        public:
+            reply(const cJSON& json);
+
+            const std::optional<std::string>& kind() const;
+            const std::optional<std::string>& next_page_token() const;
+            const std::optional<std::vector<espadin::reply>>& replies() const;
+
+        private:
+            std::optional<std::string> kind_;
+            std::optional<std::string> next_page_token_;
+            std::optional<std::vector<espadin::reply>> replies_;
+        };
+
+        virtual ~list_interface() = default;
+
+        virtual list_interface& include_deleted(bool to_set) = 0;
+        virtual list_interface& page_size(std::size_t num) = 0;
+        virtual list_interface& page_token(const std::string& tok) = 0;
+        virtual std::unique_ptr<reply> run() = 0;
+    };
+
     replies_group(drive& drv, const std::string& file_id, const std::string& comment_id);
     replies_group(const replies_group&) = delete;
 
@@ -45,12 +72,28 @@ public:
     std::unique_ptr<create_interface> create(reply&& to_create, const std::string& fields);
     std::unique_ptr<delete_interface> del(const std::string& reply_id);
     std::unique_ptr<get_interface> get(const std::string& reply_id, const std::string& fields);
+    std::unique_ptr<list_interface> list(const std::string& fields);
 
 private:
     drive& drive_;
     std::string file_id_;
     std::string comment_id_;
 };
+
+inline const std::optional<std::string>& replies_group::list_interface::reply::kind() const
+{
+    return kind_;
+}
+
+inline const std::optional<std::string>& replies_group::list_interface::reply::next_page_token() const
+{
+    return next_page_token_;
+}
+
+inline const std::optional<std::vector<espadin::reply>>& replies_group::list_interface::reply::replies() const
+{
+    return replies_;
+}
 
 }
 

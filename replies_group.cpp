@@ -1,6 +1,7 @@
 #include <espadin/replies_group.hpp>
 #include <espadin/drive.hpp>
 #include "request.hpp"
+#include "cjson_util.hpp"
 
 namespace
 {
@@ -143,6 +144,66 @@ std::string get_impl::url_stem() const
     return make_url_stem(file_id_, comment_id_) +  "/" + reply_id_;
 }
 
+class list_impl : public espadin::replies_group::list_interface, public espadin::get_request
+{
+public:
+    list_impl(const std::string& access_token,
+              const std::string& file_id,
+              const std::string& comment_id,
+              const std::string& fields);
+
+    virtual list_interface& include_deleted(bool to_set) override;
+    virtual list_interface& page_size(std::size_t num) override;
+    virtual list_interface& page_token(const std::string& tok) override;
+    virtual std::unique_ptr<reply> run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string comment_id_;
+};
+
+list_impl::list_impl(const std::string& access_token,
+                     const std::string& file_id,
+                     const std::string& comment_id,
+                     const std::string& fields)
+    : espadin::get_request(access_token),
+      file_id_(file_id),
+      comment_id_(comment_id)
+{
+    parameters_["fields"] = fields;
+}
+
+
+espadin::replies_group::list_interface& list_impl::include_deleted(bool to_set)
+{
+    parameters_["includeDeleted"] = to_set;
+    return *this;
+}
+
+espadin::replies_group::list_interface& list_impl::page_size(std::size_t num)
+{
+    parameters_["pageSize"] = num;
+    return *this;
+}
+
+espadin::replies_group::list_interface& list_impl::page_token(const std::string& tok)
+{
+    parameters_["pageToken"] = tok;
+    return *this;
+}
+
+std::unique_ptr<espadin::replies_group::list_interface::reply> list_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<reply>(*doc->get()) : std::unique_ptr<reply>();
+}
+
+std::string list_impl::url_stem() const
+{
+    return make_url_stem(file_id_, comment_id_);
+}
+
 }
 
 namespace espadin
@@ -168,6 +229,19 @@ std::unique_ptr<replies_group::delete_interface> replies_group::del(const std::s
 std::unique_ptr<replies_group::get_interface> replies_group::get(const std::string& reply_id, const std::string& fields)
 {
     return std::make_unique<get_impl>(drive_.access_token_, file_id_, comment_id_, reply_id, fields);
+}
+
+std::unique_ptr<replies_group::list_interface> replies_group::list(const std::string& fields)
+{
+    return std::make_unique<list_impl>(drive_.access_token_, file_id_, comment_id_, fields);
+}
+
+replies_group::list_interface::reply::reply(const cJSON& json)
+{
+    cjson::util ju(const_cast<cJSON&>(json));
+    ju.set_string("kind", kind_);
+    ju.set_string("nextPageToken", next_page_token_);
+    ju.set_object_vector("replies", replies_);
 }
 
 }
