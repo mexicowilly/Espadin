@@ -35,18 +35,25 @@ public:
     permission(const cJSON& json);
 
     const std::optional<bool>& allow_file_discovery() const;
+    permission& allow_file_discovery(bool to_set);
     const std::optional<bool>& deleted() const;
     const std::optional<std::string>& display_name() const;
     const std::optional<std::string>& domain() const;
+    permission& domain(const std::string& str);
     const std::optional<std::string>& email_address() const;
+    permission& email_address(const std::string& str);
     const std::optional<std::chrono::system_clock::time_point>& expiration_time() const;
     const std::optional<std::string>& kind() const;
     const std::optional<std::string>& id() const;
     const std::optional<std::vector<details>>& permission_details() const;
     const std::optional<std::string>& photo_link() const;
     const std::optional<std::string>& role() const;
+    permission& role(const std::string& str);
+    void to_json(cJSON& json) const;
     const std::optional<std::string>& type() const;
+    permission& type(const std::string& str);
     const std::optional<std::string>& view() const;
+    permission& view(const std::string& str);
 
 private:
     std::optional<std::string> kind_;
@@ -69,6 +76,12 @@ inline const std::optional<bool>& permission::allow_file_discovery() const
     return allow_file_discovery_;
 }
 
+inline permission& permission::allow_file_discovery(bool to_set)
+{
+    allow_file_discovery_ = to_set;
+    return *this;
+}
+
 inline const std::optional<bool>& permission::deleted() const
 {
     return deleted_;
@@ -84,9 +97,21 @@ inline const std::optional<std::string>& permission::domain() const
     return domain_;
 }
 
+inline permission& permission::domain(const std::string& str)
+{
+    domain_ = str;
+    return *this;
+}
+
 inline const std::optional<std::string>& permission::email_address() const
 {
     return email_address_;
+}
+
+inline permission& permission::email_address(const std::string& str)
+{
+    email_address_ = str;
+    return *this;
 }
 
 inline const std::optional<std::chrono::system_clock::time_point>& permission::expiration_time() const
@@ -119,14 +144,32 @@ inline const std::optional<std::string>& permission::role() const
     return role_;
 }
 
+inline permission& permission::role(const std::string& str)
+{
+    role_ = str;
+    return *this;
+}
+
 inline const std::optional<std::string>& permission::type() const
 {
     return type_;
 }
 
+inline permission& permission::type(const std::string& str)
+{
+    type_ = str;
+    return *this;
+}
+
 inline const std::optional<std::string>& permission::view() const
 {
     return view_;
+}
+
+inline permission& permission::view(const std::string& str)
+{
+    view_ = str;
+    return *this;
 }
 
 inline const std::optional<bool>& permission::details::inherited() const

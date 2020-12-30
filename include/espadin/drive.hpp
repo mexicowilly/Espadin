@@ -23,6 +23,7 @@ private:
     friend class comments_group;
     friend class files_group;
     friend class replies_group;
+    friend class permissions_group;
 
     std::string access_token_;
 };
