@@ -56,6 +56,11 @@ std::unique_ptr<files_group> drive::files()
     return std::make_unique<files_group>(*this);
 }
 
+std::unique_ptr<permissions_group> drive::permissions(const std::string& file_id)
+{
+    return std::make_unique<permissions_group>(*this, file_id);
+}
+
 std::unique_ptr<replies_group> drive::replies(const std::string& file_id, const std::string& comment_id)
 {
     return std::make_unique<replies_group>(*this, file_id, comment_id);

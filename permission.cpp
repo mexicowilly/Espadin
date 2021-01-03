@@ -21,6 +21,17 @@ permission::permission(const cJSON& json)
     ju.set_object_vector("permissionDetails", permission_details_);
 }
 
+void permission::to_json(cJSON& json) const
+{
+    cjson::util ju(json);
+    ju.add_bool("allowFileDiscovery", allow_file_discovery_);
+    ju.add_string("domain", domain_);
+    ju.add_string("emailAddress", email_address_);
+    ju.add_string("role", role_);
+    ju.add_string("type", type_);
+    ju.add_string("view", view_);
+}
+
 permission::details::details(const cJSON& json)
 {
     cjson::util ju(const_cast<cJSON&>(json));

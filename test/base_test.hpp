@@ -13,6 +13,7 @@ protected:
 
     base();
 
+    std::string create_doc(const std::string& name);
     void trash(const std::string& file_id);
 
     drive drive_;
