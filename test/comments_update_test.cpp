@@ -9,13 +9,7 @@ class comments_update : public testing::Test, public espadin::test::base
 protected:
     virtual void SetUp() override
     {
-        espadin::file metadata;
-        metadata.parents({parent_id})
-                .name("comments_update")
-                .mime_type("application/vnd.google-apps.document");
-        auto reply = drive_.files()->create(std::move(metadata))->run();
-        ASSERT_TRUE(reply->id());
-        file_id_ = *reply->id();
+        file_id_ = create_doc("comments_update");
     }
 
     virtual void TearDown() override

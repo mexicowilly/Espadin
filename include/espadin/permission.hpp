@@ -32,6 +32,7 @@ public:
         std::optional<bool> inherited_;
     };
 
+    permission() = default;
     permission(const cJSON& json);
 
     const std::optional<bool>& allow_file_discovery() const;

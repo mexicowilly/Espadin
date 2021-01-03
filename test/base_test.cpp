@@ -37,6 +37,18 @@ base::base()
     }
 }
 
+std::string base::create_doc(const std::string& name)
+{
+    espadin::file metadata;
+    metadata.parents({parent_id})
+            .name(name)
+            .mime_type("application/vnd.google-apps.document");
+    auto reply = drive_.files()->create(std::move(metadata))->run();
+    if (!reply->id())
+        throw std::runtime_error("Error creating doc '" + name + "'");
+    return *reply->id();
+}
+
 void base::trash(const std::string& file_id)
 {
     espadin::file f;
