@@ -18,7 +18,7 @@ public:
     const std::optional<bool>& can_add_folder_from_another_drive() const;
     const std::optional<bool>& can_add_my_drive_parent() const;
     const std::optional<bool>& can_change_copy_requires_writer_permission() const;
-    const std::optional<bool>& can_change_viewer_can_copy_content() const;
+    const std::optional<bool>& can_change_viewers_can_copy_content() const;
     const std::optional<bool>& can_comment() const;
     const std::optional<bool>& can_copy() const;
     const std::optional<bool>& can_delete() const;
@@ -54,7 +54,7 @@ private:
     std::optional<bool> can_add_folder_from_another_drive_;
     std::optional<bool> can_add_my_drive_parent_;
     std::optional<bool> can_change_copy_requires_writer_permission_;
-    std::optional<bool> can_change_viewer_can_copy_content_;
+    std::optional<bool> can_change_viewers_can_copy_content_;
     std::optional<bool> can_comment_;
     std::optional<bool> can_copy_;
     std::optional<bool> can_delete_;
@@ -106,9 +106,9 @@ inline const std::optional<bool>& capabilities::can_change_copy_requires_writer_
     return can_change_copy_requires_writer_permission_;
 }
 
-inline const std::optional<bool>& capabilities::can_change_viewer_can_copy_content() const
+inline const std::optional<bool>& capabilities::can_change_viewers_can_copy_content() const
 {
-    return can_change_viewer_can_copy_content_;
+    return can_change_viewers_can_copy_content_;
 }
 
 inline const std::optional<bool>& capabilities::can_comment() const

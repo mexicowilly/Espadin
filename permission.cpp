@@ -19,6 +19,7 @@ permission::permission(const cJSON& json)
     ju.set_string("photoLink", photo_link_);
     ju.set_time("expirationTime", expiration_time_);
     ju.set_object_vector("permissionDetails", permission_details_);
+    ju.set_bool("deleted", deleted_);
 }
 
 void permission::to_json(cJSON& json) const

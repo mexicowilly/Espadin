@@ -91,6 +91,7 @@ public:
     const std::optional<bool>& viewed_by_me() const;
     const std::optional<std::chrono::system_clock::time_point>& viewed_by_me_time() const;
     file& viewed_by_me_time(const std::chrono::system_clock::time_point& at);
+    const std::optional<bool>& viewers_can_copy_content() const;
     const std::optional<std::string>& web_content_link() const;
     const std::optional<std::string>& web_view_link() const;
     const std::optional<bool>& writers_can_share() const;
@@ -153,6 +154,7 @@ private:
     std::optional<std::map<std::string, std::string>> export_links_;
     std::optional<shortcut_details> shortcut_details_;
     std::optional<std::vector<content_restrictions>> content_restrictions_;
+    std::optional<bool> viewers_can_copy_content_;
 };
 
 inline const std::optional<std::map<std::string, std::string>>& file::app_properties() const
@@ -520,6 +522,11 @@ inline file& file::viewed_by_me_time(const std::chrono::system_clock::time_point
 {
     viewed_by_me_time_ = at;
     return *this;
+}
+
+inline const std::optional<bool>& file::viewers_can_copy_content() const
+{
+    return viewers_can_copy_content_;
 }
 
 inline const std::optional<std::string>& file::web_content_link() const

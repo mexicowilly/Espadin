@@ -49,7 +49,7 @@ file::file(const cJSON& json)
     ju.set_string_vector("permissionIds", permission_ids_);
     ju.set_bool("hasAugmentedPermissions", has_augmented_permissions_);
     ju.set_string("folderColorRgb", folder_color_rgb_);
-    ju.set_string("originalFileName", original_file_name_);
+    ju.set_string("originalFilename", original_file_name_);
     ju.set_string("fullFileExtension", full_file_extension_);
     ju.set_string("fileExtension", file_extension_);
     ju.set_string("md5Checksum", md5_checksum_);
@@ -63,6 +63,7 @@ file::file(const cJSON& json)
     ju.set_map("exportLinks", export_links_);
     ju.set_object("shortcutDetails", shortcut_details_);
     ju.set_object_vector("contentRestrictions", content_restrictions_);
+    ju.set_bool("viewersCanCopyContent", viewers_can_copy_content_);
 }
 
 void file::to_json(cJSON& json) const
@@ -77,7 +78,7 @@ void file::to_json(cJSON& json) const
     ju.add_string("name", name_);
     ju.add_string("mimeType", mime_type_);
     ju.add_time("modifiedTime", modified_time_);
-    ju.add_string("originalFileName", original_file_name_);
+    ju.add_string("originalFilename", original_file_name_);
     ju.add_string_vector("parents", parents_);
     ju.add_map("properties", properties_);
     ju.add_object("contentHints", content_hints_);

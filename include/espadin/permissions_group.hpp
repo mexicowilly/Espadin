@@ -27,12 +27,35 @@ public:
         virtual create_interface& use_domain_admin_access(bool to_set) = 0;
     };
 
+    class delete_interface
+    {
+    public:
+        virtual ~delete_interface() = default;
+
+        virtual void run() = 0;
+        virtual delete_interface& supports_all_drives(bool to_set) = 0;
+        virtual delete_interface& use_domain_admin_access(bool to_set) = 0;
+    };
+
+    class get_interface
+    {
+    public:
+        virtual ~get_interface() = default;
+
+        virtual get_interface& fields(const std::string& str) = 0;
+        virtual std::unique_ptr<permission> run() = 0;
+        virtual get_interface& supports_all_drives(bool to_set) = 0;
+        virtual get_interface& use_domain_admin_access(bool to_set) = 0;
+    };
+
     permissions_group(drive& drv, const std::string& file_id);
     permissions_group(const permissions_group&) = delete;
 
     permissions_group& operator= (const permissions_group&) = delete;
 
     std::unique_ptr<create_interface> create(permission&& perm);
+    std::unique_ptr<delete_interface> del(const std::string& permission_id);
+    std::unique_ptr<get_interface> get(const std::string& permission_id);
 
 private:
     drive& drive_;

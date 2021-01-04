@@ -11,7 +11,7 @@ capabilities::capabilities(const cJSON& json)
     ju.set_bool("canAddFolderFromAnotherDrive", can_add_folder_from_another_drive_);
     ju.set_bool("canAddMyDriveParent", can_add_my_drive_parent_);
     ju.set_bool("canChangeCopyRequiresWriterPermission", can_change_copy_requires_writer_permission_);
-    ju.set_bool("canChangeViewerCanCopyContent", can_change_viewer_can_copy_content_);
+    ju.set_bool("canChangeViewersCanCopyContent", can_change_viewers_can_copy_content_);
     ju.set_bool("canComment", can_comment_);
     ju.set_bool("canCopy", can_copy_);
     ju.set_bool("canDelete", can_delete_);
