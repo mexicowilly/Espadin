@@ -1,6 +1,7 @@
 #include <espadin/permissions_group.hpp>
 #include <espadin/drive.hpp>
 #include "request.hpp"
+#include "cjson_util.hpp"
 
 namespace
 {
@@ -16,13 +17,21 @@ public:
     create_impl(const std::string& access_token, const std::string& file_id, espadin::permission&& perm);
 
     virtual create_interface& email_message(const std::string& str) override;
+
     virtual create_interface& fields(const std::string& str) override;
+
     virtual create_interface& move_to_new_owners_root(bool to_set) override;
+
     virtual std::unique_ptr<espadin::permission> run() override;
+
     virtual create_interface& send_notification_email(bool to_set) override;
+
     virtual create_interface& supports_all_drives(bool to_set) override;
+
     virtual create_interface& transfer_ownership(bool to_set) override;
+
     virtual std::string url_stem() const override;
+
     virtual create_interface& use_domain_admin_access(bool to_set) override;
 
 private:
@@ -30,8 +39,8 @@ private:
 };
 
 create_impl::create_impl(const std::string& access_token, const std::string& file_id, espadin::permission&& perm)
-    : espadin::post_request(access_token),
-      file_id_(file_id)
+: espadin::post_request(access_token),
+  file_id_(file_id)
 {
     auto doc = cJSON_CreateObject();
     perm.to_json(*doc);
@@ -100,8 +109,11 @@ public:
                 const std::string& permission_id);
 
     virtual void run() override;
+
     virtual delete_interface& supports_all_drives(bool to_set) override;
+
     virtual std::string url_stem() const override;
+
     virtual delete_interface& use_domain_admin_access(bool to_set) override;
 
 private:
@@ -112,9 +124,9 @@ private:
 delete_impl::delete_impl(const std::string& access_token,
                          const std::string& file_id,
                          const std::string& permission_id)
-    : espadin::delete_request(access_token),
-      file_id_(file_id),
-      permission_id_(permission_id)
+: espadin::delete_request(access_token),
+  file_id_(file_id),
+  permission_id_(permission_id)
 {
 }
 
@@ -148,9 +160,13 @@ public:
              const std::string& permission_id);
 
     virtual get_interface& fields(const std::string& str) override;
+
     virtual std::unique_ptr<espadin::permission> run() override;
+
     virtual get_interface& supports_all_drives(bool to_set) override;
+
     virtual std::string url_stem() const override;
+
     virtual get_interface& use_domain_admin_access(bool to_set) override;
 
 private:
@@ -161,9 +177,9 @@ private:
 get_impl::get_impl(const std::string& access_token,
                    const std::string& file_id,
                    const std::string& permission_id)
-    : espadin::get_request(access_token),
-      file_id_(file_id),
-      permission_id_(permission_id)
+: espadin::get_request(access_token),
+  file_id_(file_id),
+  permission_id_(permission_id)
 {
 }
 
@@ -196,6 +212,77 @@ espadin::permissions_group::get_interface& get_impl::use_domain_admin_access(boo
     return *this;
 }
 
+class list_impl : public espadin::permissions_group::list_interface, public espadin::get_request
+{
+public:
+    list_impl(const std::string& access_token, const std::string& file_id);
+
+    virtual list_interface& fields(const std::string& str) override;
+    virtual list_interface& include_permissions_for_view(const std::string& str) override;
+    virtual list_interface& page_size(std::size_t num) override;
+    virtual list_interface& page_token(const std::string& tok) override;
+    virtual std::unique_ptr<reply> run() override;
+    virtual list_interface& supports_all_drives(bool to_set) override;
+    virtual std::string url_stem() const override;
+    virtual list_interface& use_domain_admin_access(bool to_set) override;
+
+private:
+    std::string file_id_;
+};
+
+list_impl::list_impl(const std::string& access_token, const std::string& file_id)
+    : espadin::get_request(access_token),
+      file_id_(file_id)
+{
+}
+
+espadin::permissions_group::list_interface& list_impl::fields(const std::string& str)
+{
+    parameters_["fields"] = str;
+    return *this;
+}
+
+espadin::permissions_group::list_interface& list_impl::include_permissions_for_view(const std::string& str)
+{
+    parameters_["includePermissionsForView"] = str;
+    return *this;
+}
+
+espadin::permissions_group::list_interface& list_impl::page_size(std::size_t num)
+{
+    parameters_["pageSize"] = num;
+    return *this;
+}
+
+espadin::permissions_group::list_interface& list_impl::page_token(const std::string& tok)
+{
+    parameters_["pageToken"] = tok;
+    return *this;
+}
+
+std::unique_ptr<espadin::permissions_group::list_interface::reply> list_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<reply>(*doc->get()) : std::unique_ptr<reply>();
+}
+
+espadin::permissions_group::list_interface& list_impl::supports_all_drives(bool to_set)
+{
+    parameters_["supportsAllDrives"] = to_set;
+    return *this;
+}
+
+std::string list_impl::url_stem() const
+{
+    return make_url_stem(file_id_);
+}
+
+espadin::permissions_group::list_interface& list_impl::use_domain_admin_access(bool to_set)
+{
+    parameters_["useDomainAdminAccess"] = to_set;
+    return *this;
+}
+
 }
 
 namespace espadin
@@ -220,6 +307,19 @@ std::unique_ptr<permissions_group::delete_interface> permissions_group::del(cons
 std::unique_ptr<permissions_group::get_interface> permissions_group::get(const std::string& permission_id)
 {
     return std::make_unique<get_impl>(drive_.access_token_, file_id_, permission_id);
+}
+
+std::unique_ptr<permissions_group::list_interface> permissions_group::list()
+{
+    return std::make_unique<list_impl>(drive_.access_token_, file_id_);
+}
+
+permissions_group::list_interface::reply::reply(const cJSON& json)
+{
+    cjson::util ju(const_cast<cJSON&>(json));
+    ju.set_string("kind", kind_);
+    ju.set_string("nextPageToken", next_page_token_);
+    ju.set_object_vector("permissions", permissions_);
 }
 
 }

@@ -19,6 +19,7 @@ ADD_EXECUTABLE(unit-test
                permissions_create_test.cpp
                permissions_delete_test.cpp
                permissions_get_test.cpp
+               permissions_list_test.cpp
                replies_create_test.cpp
                replies_delete_test.cpp
                replies_get_test.cpp
