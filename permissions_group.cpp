@@ -283,6 +283,82 @@ espadin::permissions_group::list_interface& list_impl::use_domain_admin_access(b
     return *this;
 }
 
+class update_impl : public espadin::permissions_group::update_interface, public espadin::patch_request
+{
+public:
+    update_impl(const std::string& access_token,
+                const std::string& file_id,
+                const std::string& permission_id,
+                espadin::permission&& perm);
+
+    virtual update_interface& fields(const std::string& str) override;
+    virtual update_interface& remove_expiration(bool to_set) override;
+    virtual std::unique_ptr<espadin::permission> run() override;
+    virtual update_interface& supports_all_drives(bool to_set) override;
+    virtual update_interface& transfer_ownership(bool to_set) override;
+    virtual std::string url_stem() const override;
+    virtual update_interface& use_domain_admin_access(bool to_set) override;
+
+private:
+    std::string file_id_;
+    std::string permission_id_;
+};
+
+update_impl::update_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         const std::string& permission_id,
+                         espadin::permission&& perm)
+    : espadin::patch_request(access_token),
+      file_id_(file_id),
+      permission_id_(permission_id)
+{
+    auto doc = cJSON_CreateObject();
+    perm.to_json(*doc);
+    to_post(*doc);
+    cJSON_Delete(doc);
+}
+
+espadin::permissions_group::update_interface& update_impl::fields(const std::string& str)
+{
+    parameters_["fields"] = str;
+    return *this;
+}
+
+espadin::permissions_group::update_interface& update_impl::remove_expiration(bool to_set)
+{
+    parameters_["removeExpiration"] = to_set;
+    return *this;
+}
+
+std::unique_ptr<espadin::permission> update_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<espadin::permission>(*doc->get()) : std::unique_ptr<espadin::permission>();
+}
+
+espadin::permissions_group::update_interface& update_impl::supports_all_drives(bool to_set)
+{
+    parameters_["supportsAllDrives"] = to_set;
+    return *this;
+}
+
+espadin::permissions_group::update_interface& update_impl::transfer_ownership(bool to_set)
+{
+    parameters_["transferOwnership"] = to_set;
+    return *this;
+}
+
+std::string update_impl::url_stem() const
+{
+    return make_url_stem(file_id_) + "/" + permission_id_;
+}
+
+espadin::permissions_group::update_interface& update_impl::use_domain_admin_access(bool to_set)
+{
+    parameters_["useDomainAdminAccess"] = to_set;
+    return *this;
+}
+
 }
 
 namespace espadin
@@ -312,6 +388,12 @@ std::unique_ptr<permissions_group::get_interface> permissions_group::get(const s
 std::unique_ptr<permissions_group::list_interface> permissions_group::list()
 {
     return std::make_unique<list_impl>(drive_.access_token_, file_id_);
+}
+
+std::unique_ptr<permissions_group::update_interface> permissions_group::update(const std::string& permission_id,
+                                                                               permission&& perm)
+{
+    return std::make_unique<update_impl>(drive_.access_token_, file_id_, permission_id, std::move(perm));
 }
 
 permissions_group::list_interface::reply::reply(const cJSON& json)

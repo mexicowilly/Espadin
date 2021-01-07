@@ -77,6 +77,19 @@ public:
         virtual list_interface& use_domain_admin_access(bool to_set) = 0;
     };
 
+    class update_interface
+    {
+    public:
+        virtual ~update_interface() = default;
+
+        virtual update_interface& fields(const std::string& str) = 0;
+        virtual update_interface& remove_expiration(bool to_set) = 0;
+        virtual std::unique_ptr<permission> run() = 0;
+        virtual update_interface& supports_all_drives(bool to_set) = 0;
+        virtual update_interface& transfer_ownership(bool to_set) = 0;
+        virtual update_interface& use_domain_admin_access(bool to_set) = 0;
+    };
+
     permissions_group(drive& drv, const std::string& file_id);
     permissions_group(const permissions_group&) = delete;
 
@@ -86,6 +99,7 @@ public:
     std::unique_ptr<delete_interface> del(const std::string& permission_id);
     std::unique_ptr<get_interface> get(const std::string& permission_id);
     std::unique_ptr<list_interface> list();
+    std::unique_ptr<update_interface> update(const std::string& permission_id, permission&& perm);
 
 private:
     drive& drive_;

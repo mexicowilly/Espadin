@@ -44,6 +44,7 @@ public:
     const std::optional<std::string>& email_address() const;
     permission& email_address(const std::string& str);
     const std::optional<std::chrono::system_clock::time_point>& expiration_time() const;
+    permission& expiration_time(const std::chrono::system_clock::time_point& to_set);
     const std::optional<std::string>& kind() const;
     const std::optional<std::string>& id() const;
     const std::optional<std::vector<details>>& permission_details() const;
@@ -118,6 +119,12 @@ inline permission& permission::email_address(const std::string& str)
 inline const std::optional<std::chrono::system_clock::time_point>& permission::expiration_time() const
 {
     return expiration_time_;
+}
+
+inline permission& permission::expiration_time(const std::chrono::system_clock::time_point& to_set)
+{
+    expiration_time_ = to_set;
+    return *this;
 }
 
 inline const std::optional<std::string>& permission::kind() const

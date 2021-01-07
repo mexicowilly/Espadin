@@ -28,6 +28,7 @@ void permission::to_json(cJSON& json) const
     ju.add_bool("allowFileDiscovery", allow_file_discovery_);
     ju.add_string("domain", domain_);
     ju.add_string("emailAddress", email_address_);
+    ju.add_time("expirationTime", expiration_time_);
     ju.add_string("role", role_);
     ju.add_string("type", type_);
     ju.add_string("view", view_);

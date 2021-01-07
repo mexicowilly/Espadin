@@ -26,7 +26,7 @@ base::base()
                     .parents({"root"})
                     .mime_type("application/vnd.google-apps.folder");
             auto created = drive_.files()->create(std::move(metadata))->run();
-            if (!created->id())
+            if (!created || !created->id())
                 throw std::runtime_error("Could not create folder 'Espadin Test'");
             parent_id = *created->id();
         }
