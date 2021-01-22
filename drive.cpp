@@ -66,4 +66,9 @@ std::unique_ptr<replies_group> drive::replies(const std::string& file_id, const 
     return std::make_unique<replies_group>(*this, file_id, comment_id);
 }
 
+std::unique_ptr<revisions_group> drive::revisions(const std::string& file_id)
+{
+    return std::make_unique<revisions_group>(*this, file_id);
+}
+
 }

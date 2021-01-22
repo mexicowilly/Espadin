@@ -31,6 +31,8 @@ LIST(APPEND ESPADIN_PUBLIC_HEADERS
      include/espadin/permissions_group.hpp
      include/espadin/replies_group.hpp
      include/espadin/reply.hpp
+     include/espadin/revision.hpp
+     include/espadin/revisions_group.hpp
      include/espadin/shortcut_details.hpp
      include/espadin/storage_quota.hpp
      include/espadin/user.hpp
@@ -69,6 +71,8 @@ LIST(APPEND ESPADIN_SOURCES
      request.hpp
      resumable_file_upload.cpp
      resumable_file_upload.hpp
+     revision.cpp
+     revisions_group.cpp
      shortcut_details.cpp
      storage_quota.cpp
      user.cpp

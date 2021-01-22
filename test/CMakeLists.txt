@@ -25,5 +25,6 @@ ADD_EXECUTABLE(unit-test
                replies_delete_test.cpp
                replies_get_test.cpp
                replies_list_test.cpp
-               replies_update_test.cpp)
+               replies_update_test.cpp
+               revisions_list_test.cpp)
 TARGET_LINK_LIBRARIES(unit-test espadin GTest::GTest)
