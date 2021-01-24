@@ -11,6 +11,51 @@ std::string make_url_stem(const std::string& file_id)
     return "files/" + file_id + "/revisions";
 }
 
+class get_impl : public espadin::revisions_group::get_interface, public espadin::get_request
+{
+public:
+    get_impl(const std::string& access_token, const std::string& file_id, const std::string& revision_id);
+
+    virtual get_interface& acknowledge_abuse(bool to_set) override;
+    virtual get_interface& fields(const std::string& str) override;
+    virtual std::unique_ptr<espadin::revision> run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string revision_id_;
+};
+
+get_impl::get_impl(const std::string& access_token, const std::string& file_id, const std::string& revision_id)
+    : espadin::get_request(access_token),
+      file_id_(file_id),
+      revision_id_(revision_id)
+{
+}
+
+espadin::revisions_group::get_interface& get_impl::acknowledge_abuse(bool to_set)
+{
+    parameters_["acknowledgeAbuse"] = to_set;
+    return *this;
+}
+
+espadin::revisions_group::get_interface& get_impl::fields(const std::string& str)
+{
+    parameters_["fields"] = str;
+    return *this;
+}
+
+std::unique_ptr<espadin::revision> get_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<espadin::revision>(*doc->get()) : std::unique_ptr<espadin::revision>();
+}
+
+std::string get_impl::url_stem() const
+{
+    return make_url_stem(file_id_) + "/" + revision_id_;
+}
+
 class list_impl : public espadin::revisions_group::list_interface, public espadin::get_request
 {
 public:
@@ -70,6 +115,11 @@ revisions_group::revisions_group(drive& drv, const std::string& file_id)
     : drive_(drv),
       file_id_(file_id)
 {
+}
+
+std::unique_ptr<revisions_group::get_interface> revisions_group::get(const std::string& revision_id)
+{
+    return std::make_unique<get_impl>(drive_.access_token_, file_id_, revision_id);
 }
 
 std::unique_ptr<revisions_group::list_interface> revisions_group::list()

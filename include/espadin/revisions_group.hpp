@@ -13,6 +13,16 @@ class drive;
 class ESPADIN_EXPORT revisions_group
 {
 public:
+    class get_interface
+    {
+    public:
+        virtual ~get_interface() = default;
+
+        virtual get_interface& acknowledge_abuse(bool to_set) = 0;
+        virtual get_interface& fields(const std::string& str) = 0;
+        virtual std::unique_ptr<revision> run() = 0;
+    };
+
     class list_interface
     {
     public:
@@ -44,6 +54,7 @@ public:
 
     revisions_group& operator= (const revisions_group&) = delete;
 
+    std::unique_ptr<get_interface> get(const std::string& revision_id);
     std::unique_ptr<list_interface> list();
 
 private:
