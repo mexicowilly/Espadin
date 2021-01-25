@@ -11,6 +11,38 @@ std::string make_url_stem(const std::string& file_id)
     return "files/" + file_id + "/revisions";
 }
 
+class delete_impl : public espadin::revisions_group::delete_interface, public espadin::delete_request
+{
+public:
+    delete_impl(const std::string& access_token, const std::string& file_id, const std::string& revision_id);
+
+    virtual void run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string revision_id_;
+};
+
+delete_impl::delete_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         const std::string& revision_id)
+    : espadin::delete_request(access_token),
+      file_id_(file_id),
+      revision_id_(revision_id)
+{
+}
+
+void delete_impl::run()
+{
+    run_impl();
+}
+
+std::string delete_impl::url_stem() const
+{
+    return make_url_stem(file_id_) + "/" + revision_id_;
+}
+
 class get_impl : public espadin::revisions_group::get_interface, public espadin::get_request
 {
 public:
@@ -115,6 +147,11 @@ revisions_group::revisions_group(drive& drv, const std::string& file_id)
     : drive_(drv),
       file_id_(file_id)
 {
+}
+
+std::unique_ptr<revisions_group::delete_interface> revisions_group::del(const std::string& revision_id)
+{
+    return std::make_unique<delete_impl>(drive_.access_token_, file_id_, revision_id);
 }
 
 std::unique_ptr<revisions_group::get_interface> revisions_group::get(const std::string& revision_id)

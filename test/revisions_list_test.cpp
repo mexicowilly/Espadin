@@ -11,7 +11,7 @@ class revisions_list : public testing::Test, public espadin::test::base
 protected:
     virtual void SetUp() override
     {
-        std::string name("comments_list");
+        std::string name("revisions_list");
         file_id_ = create_doc(name);
         for (const auto& txt : { "one", "two", "three" })
         {
