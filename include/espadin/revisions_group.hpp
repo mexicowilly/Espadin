@@ -57,6 +57,15 @@ public:
         virtual std::unique_ptr<reply> run() = 0;
     };
 
+    class update_interface
+    {
+    public:
+        virtual ~update_interface() = default;
+
+        virtual update_interface& fields(const std::string& str) = 0;
+        virtual std::unique_ptr<revision> run() = 0;
+    };
+
     revisions_group(drive& drv, const std::string& file_id);
     revisions_group(const revisions_group&) = delete;
 
@@ -65,6 +74,7 @@ public:
     std::unique_ptr<delete_interface> del(const std::string& revision_id);
     std::unique_ptr<get_interface> get(const std::string& revision_id);
     std::unique_ptr<list_interface> list();
+    std::unique_ptr<update_interface> update(const std::string& revision_id, revision&& to_update);
 
 private:
     drive& drive_;

@@ -18,6 +18,7 @@ public:
     const std::optional<std::map<std::string, std::string>>& export_links() const;
     const std::optional<std::string>& id() const;
     const std::optional<bool>& keep_forever() const;
+    revision& keep_forever(bool to_set);
     const std::optional<std::string>& kind() const;
     const std::optional<user>& last_modifying_user() const;
     const std::optional<std::string>& md5_checksum() const;
@@ -25,10 +26,14 @@ public:
     const std::optional<std::chrono::system_clock::time_point>& modified_time() const;
     const std::optional<std::string>& original_filename() const;
     const std::optional<bool>& publish_auto() const;
+    revision& publish_auto(bool to_set);
     const std::optional<bool>& published() const;
+    revision& published(bool to_set);
     const std::optional<std::string>& published_link() const;
     const std::optional<bool>& published_outside_domain() const;
+    revision& published_outside_domain(bool to_set);
     const std::optional<std::size_t>& size() const;
+    void to_json(cJSON& json) const;
 
 private:
     std::optional<std::string> kind_;
@@ -60,6 +65,12 @@ inline const std::optional<std::string>& revision::id() const
 inline const std::optional<bool>& revision::keep_forever() const
 {
     return keep_forever_;
+}
+
+inline revision& revision::keep_forever(bool to_set)
+{
+    keep_forever_ = to_set;
+    return *this;
 }
 
 inline const std::optional<std::string>& revision::kind() const
@@ -97,9 +108,21 @@ inline const std::optional<bool>& revision::publish_auto() const
     return publish_auto_;
 }
 
+inline revision& revision::publish_auto(bool to_set)
+{
+    publish_auto_ = to_set;
+    return *this;
+}
+
 inline const std::optional<bool>& revision::published() const
 {
     return published_;
+}
+
+inline revision& revision::published(bool to_set)
+{
+    published_ = to_set;
+    return *this;
 }
 
 inline const std::optional<std::string>& revision::published_link() const
@@ -110,6 +133,12 @@ inline const std::optional<std::string>& revision::published_link() const
 inline const std::optional<bool>& revision::published_outside_domain() const
 {
     return published_outside_domain_;
+}
+
+inline revision& revision::published_outside_domain(bool to_set)
+{
+    published_outside_domain_ = to_set;
+    return *this;
 }
 
 inline const std::optional<std::size_t>& revision::size() const

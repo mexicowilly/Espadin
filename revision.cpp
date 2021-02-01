@@ -23,4 +23,13 @@ revision::revision(const cJSON& json)
     ju.set_map("exportLinks", export_links_);
 }
 
+void revision::to_json(cJSON& json) const
+{
+    cjson::util ju(json);
+    ju.add_bool("keepForever", keep_forever_);
+    ju.add_bool("publishAuto", publish_auto_);
+    ju.add_bool("published", published_);
+    ju.add_bool("publishedOutsideDomain", published_outside_domain_);
+}
+
 }

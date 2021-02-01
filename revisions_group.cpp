@@ -138,6 +138,54 @@ std::string list_impl::url_stem() const
     return make_url_stem(file_id_);
 }
 
+class update_impl : public espadin::revisions_group::update_interface, public espadin::patch_request
+{
+public:
+    update_impl(const std::string& access_token,
+                const std::string& file_id,
+                const std::string& revision_id,
+                espadin::revision&& to_update);
+
+    virtual update_interface& fields(const std::string& str) override;
+    virtual std::unique_ptr<espadin::revision> run() override;
+    virtual std::string url_stem() const override;
+
+private:
+    std::string file_id_;
+    std::string revision_id_;
+};
+
+update_impl::update_impl(const std::string& access_token,
+                         const std::string& file_id,
+                         const std::string& revision_id,
+                         espadin::revision&& to_update)
+    : espadin::patch_request(access_token),
+      file_id_(file_id),
+      revision_id_(revision_id)
+{
+    auto doc = cJSON_CreateObject();
+    to_update.to_json(*doc);
+    to_post(*doc);
+    cJSON_Delete(doc);
+}
+
+espadin::revisions_group::update_interface& update_impl::fields(const std::string& str)
+{
+    parameters_["fields"] = str;
+    return *this;
+}
+
+std::unique_ptr<espadin::revision> update_impl::run()
+{
+    auto doc = run_impl();
+    return doc ? std::make_unique<espadin::revision>(*doc->get()) : std::unique_ptr<espadin::revision>();
+}
+
+std::string update_impl::url_stem() const
+{
+    return make_url_stem(file_id_) + "/" + revision_id_;
+}
+
 }
 
 namespace espadin
@@ -162,6 +210,12 @@ std::unique_ptr<revisions_group::get_interface> revisions_group::get(const std::
 std::unique_ptr<revisions_group::list_interface> revisions_group::list()
 {
     return std::make_unique<list_impl>(drive_.access_token_, file_id_);
+}
+
+std::unique_ptr<revisions_group::update_interface> revisions_group::update(const std::string& revision_id,
+                                                                           revision&& to_update)
+{
+    return std::make_unique<update_impl>(drive_.access_token_, file_id_, revision_id, std::move(to_update));
 }
 
 revisions_group::list_interface::reply::reply(const cJSON& json)
