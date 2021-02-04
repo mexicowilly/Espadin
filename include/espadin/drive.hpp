@@ -17,6 +17,7 @@ public:
     drive(const std::string& access_token);
 
     std::unique_ptr<about> about_drive(const std::string& fields);
+    void access_token(const std::string& token);
     std::unique_ptr<comments_group> comments(const std::string& file_id);
     std::unique_ptr<files_group> files();
     std::unique_ptr<permissions_group> permissions(const std::string& file_id);
@@ -32,6 +33,11 @@ private:
 
     std::string access_token_;
 };
+
+inline void drive::access_token(const std::string& token)
+{
+    access_token_ = token;
+}
 
 }
 
