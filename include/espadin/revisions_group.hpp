@@ -8,8 +8,6 @@
 namespace espadin
 {
 
-class drive;
-
 class ESPADIN_EXPORT revisions_group
 {
 public:
@@ -66,19 +64,12 @@ public:
         virtual std::unique_ptr<revision> run() = 0;
     };
 
-    revisions_group(drive& drv, const std::string& file_id);
-    revisions_group(const revisions_group&) = delete;
+    virtual ~revisions_group() = default;
 
-    revisions_group& operator= (const revisions_group&) = delete;
-
-    std::unique_ptr<delete_interface> del(const std::string& revision_id);
-    std::unique_ptr<get_interface> get(const std::string& revision_id);
-    std::unique_ptr<list_interface> list();
-    std::unique_ptr<update_interface> update(const std::string& revision_id, revision&& to_update);
-
-private:
-    drive& drive_;
-    std::string file_id_;
+    virtual std::unique_ptr<delete_interface> del(const std::string& revision_id) = 0;
+    virtual std::unique_ptr<get_interface> get(const std::string& revision_id) = 0;
+    virtual std::unique_ptr<list_interface> list() = 0;
+    virtual std::unique_ptr<update_interface> update(const std::string& revision_id, revision&& to_update) = 0;
 };
 
 inline const std::optional<std::string>& revisions_group::list_interface::reply::kind() const

@@ -10,8 +10,6 @@
 namespace espadin
 {
 
-class drive;
-
 class ESPADIN_EXPORT files_group
 {
 public:
@@ -150,33 +148,27 @@ public:
         virtual update_interface& use_content_as_indexable_text(bool flg) = 0;
     };
 
-    files_group(drive& drv);
-    files_group(const files_group&) = delete;
+    virtual ~files_group() = default;
 
-    files_group& operator= (const files_group&) = delete;
-
-    std::unique_ptr<copy_interface> copy(const std::string& file_id, file&& metadata);
-    std::unique_ptr<create_interface> create(file&& metadata);
-    std::unique_ptr<create_interface> create(file&& metadata,
-                                             const std::filesystem::path& to_upload);
-    std::unique_ptr<delete_interface> del(const std::string& file_id);
-    void empty_trash();
-    std::unique_ptr<export_interface> exp(const std::string& file_id,
-                                          const std::string& mime_type,
-                                          std::ostream& content_destination);
-    std::unique_ptr<generate_ids_interface> generate_ids();
-    std::unique_ptr<get_interface> get(const std::string& file_id);
-    std::unique_ptr<get_interface> get(const std::string& file_id,
-                                       std::ostream& content_destination);
-    std::unique_ptr<list_interface> list();
-    std::unique_ptr<update_interface> update(const std::string& file_id,
-                                             file&& metadata);
-    std::unique_ptr<update_interface> update(const std::string& file_id,
-                                             file&& metadata,
-                                             const std::filesystem::path& to_upload);
-
-private:
-    drive& drive_;
+    virtual std::unique_ptr<copy_interface> copy(const std::string& file_id, file&& metadata) = 0;
+    virtual std::unique_ptr<create_interface> create(file&& metadata) = 0;
+    virtual std::unique_ptr<create_interface> create(file&& metadata,
+                                                     const std::filesystem::path& to_upload) = 0;
+    virtual std::unique_ptr<delete_interface> del(const std::string& file_id) = 0;
+    virtual void empty_trash() = 0;
+    virtual std::unique_ptr<export_interface> exp(const std::string& file_id,
+                                                  const std::string& mime_type,
+                                                  std::ostream& content_destination) = 0;
+    virtual std::unique_ptr<generate_ids_interface> generate_ids() = 0;
+    virtual std::unique_ptr<get_interface> get(const std::string& file_id) = 0;
+    virtual std::unique_ptr<get_interface> get(const std::string& file_id,
+                                               std::ostream& content_destination) = 0;
+    virtual std::unique_ptr<list_interface> list() = 0;
+    virtual std::unique_ptr<update_interface> update(const std::string& file_id,
+                                                     file&& metadata) = 0;
+    virtual std::unique_ptr<update_interface> update(const std::string& file_id,
+                                                     file&& metadata,
+                                                     const std::filesystem::path& to_upload) = 0;
 };
 
 inline const std::optional<std::vector<std::string>>& files_group::generate_ids_interface::reply::ids() const

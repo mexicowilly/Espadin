@@ -7,8 +7,6 @@
 namespace espadin
 {
 
-class drive;
-
 class ESPADIN_EXPORT permissions_group
 {
 public:
@@ -90,20 +88,13 @@ public:
         virtual update_interface& use_domain_admin_access(bool to_set) = 0;
     };
 
-    permissions_group(drive& drv, const std::string& file_id);
-    permissions_group(const permissions_group&) = delete;
+    virtual ~permissions_group() = default;
 
-    permissions_group& operator= (const permissions_group&) = delete;
-
-    std::unique_ptr<create_interface> create(permission&& perm);
-    std::unique_ptr<delete_interface> del(const std::string& permission_id);
-    std::unique_ptr<get_interface> get(const std::string& permission_id);
-    std::unique_ptr<list_interface> list();
-    std::unique_ptr<update_interface> update(const std::string& permission_id, permission&& perm);
-
-private:
-    drive& drive_;
-    std::string file_id_;
+    virtual std::unique_ptr<create_interface> create(permission&& perm) = 0;
+    virtual std::unique_ptr<delete_interface> del(const std::string& permission_id) = 0;
+    virtual std::unique_ptr<get_interface> get(const std::string& permission_id) = 0;
+    virtual std::unique_ptr<list_interface> list() = 0;
+    virtual std::unique_ptr<update_interface> update(const std::string& permission_id, permission&& perm) = 0;
 };
 
 inline const std::optional<std::string>& permissions_group::list_interface::reply::kind() const

@@ -1,5 +1,10 @@
 #include <espadin/drive.hpp>
 #include "request.hpp"
+#include "files_group_impl.hpp"
+#include "comments_group_impl.hpp"
+#include "replies_group_impl.hpp"
+#include "permissions_group_impl.hpp"
+#include "revisions_group_impl.hpp"
 
 namespace
 {
@@ -46,29 +51,41 @@ std::unique_ptr<about> drive::about_drive(const std::string& fields)
     return ab.run();
 }
 
+void drive::access_token(const std::string& token)
+{
+    std::lock_guard lock(token_guard_);
+    access_token_ = token;
+}
+
 std::unique_ptr<comments_group> drive::comments(const std::string& file_id)
 {
-    return std::make_unique<comments_group>(*this, file_id);
+    return std::make_unique<comments_group_impl>(std::bind(&drive::token, this), file_id);
 }
 
 std::unique_ptr<files_group> drive::files()
 {
-    return std::make_unique<files_group>(*this);
+    return std::make_unique<files_group_impl>(std::bind(&drive::token, this));
 }
 
 std::unique_ptr<permissions_group> drive::permissions(const std::string& file_id)
 {
-    return std::make_unique<permissions_group>(*this, file_id);
+    return std::make_unique<permissions_group_impl>(std::bind(&drive::token, this), file_id);
 }
 
 std::unique_ptr<replies_group> drive::replies(const std::string& file_id, const std::string& comment_id)
 {
-    return std::make_unique<replies_group>(*this, file_id, comment_id);
+    return std::make_unique<replies_group_impl>(std::bind(&drive::token, this), file_id, comment_id);
 }
 
 std::unique_ptr<revisions_group> drive::revisions(const std::string& file_id)
 {
-    return std::make_unique<revisions_group>(*this, file_id);
+    return std::make_unique<revisions_group_impl>(std::bind(&drive::token, this), file_id);
+}
+
+const std::string& drive::token()
+{
+    std::lock_guard lock(token_guard_);
+    return access_token_;
 }
 
 }

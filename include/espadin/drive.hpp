@@ -7,6 +7,7 @@
 #include <espadin/replies_group.hpp>
 #include <espadin/permissions_group.hpp>
 #include <espadin/revisions_group.hpp>
+#include <mutex>
 
 namespace espadin
 {
@@ -25,19 +26,11 @@ public:
     std::unique_ptr<revisions_group> revisions(const std::string& file_id);
 
 private:
-    friend class comments_group;
-    friend class files_group;
-    friend class replies_group;
-    friend class permissions_group;
-    friend class revisions_group;
+    const std::string& token();
 
     std::string access_token_;
+    std::mutex token_guard_;
 };
-
-inline void drive::access_token(const std::string& token)
-{
-    access_token_ = token;
-}
 
 }
 

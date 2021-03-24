@@ -33,6 +33,6 @@ TEST_F(permissions_delete, do_one)
     auto result = perms->create(std::move(perm))->run();
     ASSERT_TRUE(result);
     ASSERT_TRUE(result->id());
-    perms->del(*result->id());
-    EXPECT_THROW(perms->get(*result->id()), espadin::drive_exception);
+    perms->del(*result->id())->run();
+    EXPECT_THROW(perms->get(*result->id())->run(), espadin::drive_exception);
 }

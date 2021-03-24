@@ -7,8 +7,6 @@
 namespace espadin
 {
 
-class drive;
-
 class ESPADIN_EXPORT comments_group
 {
 public:
@@ -73,24 +71,17 @@ public:
         virtual std::unique_ptr<comment> run() = 0;
     };
 
-    comments_group(drive& drv, const std::string& file_id);
-    comments_group(const comments_group&) = delete;
+    virtual ~comments_group() = default;
 
-    comments_group& operator= (const comments_group&) = delete;
-
-    std::unique_ptr<create_interface> create(const std::string& content,
-                                             const std::string& fields);
-    std::unique_ptr<delete_interface> del(const std::string& comment_id);
-    std::unique_ptr<get_interface> get(const std::string& comment_id,
-                                       const std::string& fields);
-    std::unique_ptr<list_interface> list(const std::string& fields);
-    std::unique_ptr<update_interface> update(const std::string& comment_id,
-                                             const std::string& content,
-                                             const std::string& fields);
-
-private:
-    drive& drive_;
-    std::string file_id_;
+    virtual std::unique_ptr<create_interface> create(const std::string& content,
+                                                     const std::string& fields) = 0;
+    virtual std::unique_ptr<delete_interface> del(const std::string& comment_id) = 0;
+    virtual std::unique_ptr<get_interface> get(const std::string& comment_id,
+                                               const std::string& fields) = 0;
+    virtual std::unique_ptr<list_interface> list(const std::string& fields) = 0;
+    virtual std::unique_ptr<update_interface> update(const std::string& comment_id,
+                                                     const std::string& content,
+                                                     const std::string& fields) = 0;
 };
 
 inline const std::optional<std::vector<comment>>& comments_group::list_interface::reply::comments() const

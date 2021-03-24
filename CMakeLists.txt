@@ -40,10 +40,13 @@ LIST(APPEND ESPADIN_PUBLIC_HEADERS
 
 LIST(APPEND ESPADIN_SOURCES
      about.cpp
+     access_token_accessor.hpp
      calendar.hpp
      capabilities.cpp
      comment.cpp
      comments_group.cpp
+     comments_group_impl.cpp
+     comments_group_impl.hpp
      content_hints.cpp
      content_restrictions.cpp
      cJSON.c
@@ -59,13 +62,19 @@ LIST(APPEND ESPADIN_SOURCES
      drive.cpp
      file.cpp
      files_group.cpp
+     files_group_impl.cpp
+     files_group_impl.hpp
      finalize.cpp
      garbage_cleaner.cpp
      garbage_cleaner.hpp
      image_media_metadata.cpp
      permission.cpp
      permissions_group.cpp
+     permissions_group_impl.cpp
+     permissions_group_impl.hpp
      replies_group.cpp
+     replies_group_impl.cpp
+     replies_group_impl.hpp
      reply.cpp
      request.cpp
      request.hpp
@@ -73,6 +82,8 @@ LIST(APPEND ESPADIN_SOURCES
      resumable_file_upload.hpp
      revision.cpp
      revisions_group.cpp
+     revisions_group_impl.cpp
+     revisions_group_impl.hpp
      shortcut_details.cpp
      storage_quota.cpp
      user.cpp
