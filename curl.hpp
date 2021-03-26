@@ -1,5 +1,5 @@
-#ifndef ESPADIN_CURL_HPP__
-#define ESPADIN_CURL_HPP__
+#ifndef ESPADIN_CURL_HPP_
+#define ESPADIN_CURL_HPP_
 
 #include <espadin/export.hpp>
 #include "cjson_doc.hpp"

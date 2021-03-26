@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_FINALIZE_HPP__)
-#define ESPADIN_FINALIZE_HPP__
+#if !defined(ESPADIN_FINALIZE_HPP_)
+#define ESPADIN_FINALIZE_HPP_
 
 #include <espadin/export.hpp>
 

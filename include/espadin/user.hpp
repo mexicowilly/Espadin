@@ -1,5 +1,5 @@
-#if !defined(ESPADING_USER_HPP__)
-#define ESPADING_USER_HPP__
+#if !defined(ESPADING_USER_HPP_)
+#define ESPADING_USER_HPP_
 
 #include <espadin/export.hpp>
 #include <string>

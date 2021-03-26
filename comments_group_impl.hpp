@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_COMMENTS_GROUP_IMPL_HPP__)
-#define ESPADIN_COMMENTS_GROUP_IMPL_HPP__
+#if !defined(ESPADIN_COMMENTS_GROUP_IMPL_HPP_)
+#define ESPADIN_COMMENTS_GROUP_IMPL_HPP_
 
 #include <espadin/comments_group.hpp>
 #include "access_token_accessor.hpp"

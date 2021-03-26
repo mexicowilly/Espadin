@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_SHORTCUT_DETAILS_HPP__)
-#define ESPADIN_SHORTCUT_DETAILS_HPP__
+#if !defined(ESPADIN_SHORTCUT_DETAILS_HPP_)
+#define ESPADIN_SHORTCUT_DETAILS_HPP_
 
 #include <espadin/export.hpp>
 #include <string>

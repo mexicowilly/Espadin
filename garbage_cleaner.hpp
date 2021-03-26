@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_GARBAGE_CLEANER_HPP__)
-#define ESPADIN_GARBAGE_CLEANER_HPP__
+#if !defined(ESPADIN_GARBAGE_CLEANER_HPP_)
+#define ESPADIN_GARBAGE_CLEANER_HPP_
 
 #include <functional>
 #include <stack>

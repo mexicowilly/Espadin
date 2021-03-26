@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_PERMISSIONS_GROUP_HPP__)
-#define ESPADIN_PERMISSIONS_GROUP_HPP__
+#if !defined(ESPADIN_PERMISSIONS_GROUP_HPP_)
+#define ESPADIN_PERMISSIONS_GROUP_HPP_
 
 #include <espadin/permission.hpp>
 #include <memory>

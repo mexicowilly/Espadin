@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_REPLIES_GROUP_IMPL_HPP__)
-#define ESPADIN_REPLIES_GROUP_IMPL_HPP__
+#if !defined(ESPADIN_REPLIES_GROUP_IMPL_HPP_)
+#define ESPADIN_REPLIES_GROUP_IMPL_HPP_
 
 #include <espadin/replies_group.hpp>
 #include "access_token_accessor.hpp"

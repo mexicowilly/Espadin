@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_STORAGE_QUOTA_HPP__)
-#define ESPADIN_STORAGE_QUOTA_HPP__
+#if !defined(ESPADIN_STORAGE_QUOTA_HPP_)
+#define ESPADIN_STORAGE_QUOTA_HPP_
 
 #include <espadin/export.hpp>
 #include <optional>

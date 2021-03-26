@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_REVISIONS_GROUP_HPP__)
-#define ESPADIN_REVISIONS_GROUP_HPP__
+#if !defined(ESPADIN_REVISIONS_GROUP_HPP_)
+#define ESPADIN_REVISIONS_GROUP_HPP_
 
 #include <espadin/revision.hpp>
 #include <vector>

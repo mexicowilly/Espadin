@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_COMMENT_HPP__)
-#define ESPADIN_COMMENT_HPP__
+#if !defined(ESPADIN_COMMENT_HPP_)
+#define ESPADIN_COMMENT_HPP_
 
 #include <espadin/reply.hpp>
 #include <vector>

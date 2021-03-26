@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_PERMISSION_HPP__)
-#define ESPADIN_PERMISSION_HPP__
+#if !defined(ESPADIN_PERMISSION_HPP_)
+#define ESPADIN_PERMISSION_HPP_
 
 #include <espadin/export.hpp>
 #include <string>

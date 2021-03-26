@@ -1,5 +1,5 @@
-#if !defined(EPSADIN_CJSON_UTIL_HPP__)
-#define EPSADIN_CJSON_UTIL_HPP__
+#if !defined(EPSADIN_CJSON_UTIL_HPP_)
+#define EPSADIN_CJSON_UTIL_HPP_
 
 #include "cJSON.h"
 #include <string>

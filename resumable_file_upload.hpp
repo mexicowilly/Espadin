@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_RESUMABLE_FILE_UPLOAD__)
-#define ESPADIN_RESUMABLE_FILE_UPLOAD__
+#if !defined(ESPADIN_RESUMABLE_FILE_UPLOAD_HPP_)
+#define ESPADIN_RESUMABLE_FILE_UPLOAD_HPP_
 
 #include "curl.hpp"
 #include <filesystem>

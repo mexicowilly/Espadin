@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_CJSON_DOC_HPP__)
-#define ESPADIN_CJSON_DOC_HPP__
+#if !defined(ESPADIN_CJSON_DOC_HPP_)
+#define ESPADIN_CJSON_DOC_HPP_
 
 #include "cJSON.h"
 #include <string>

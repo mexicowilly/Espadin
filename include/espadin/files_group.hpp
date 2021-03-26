@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_FILES_GROUP_HPP__)
-#define ESPADIN_FILES_GROUP_HPP__
+#if !defined(ESPADIN_FILES_GROUP_HPP_)
+#define ESPADIN_FILES_GROUP_HPP_
 
 #include <espadin/file.hpp>
 #include <string>

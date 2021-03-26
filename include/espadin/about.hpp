@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_ABOUT_HPP__)
-#define ESPADIN_ABOUT_HPP__
+#if !defined(ESPADIN_ABOUT_HPP_)
+#define ESPADIN_ABOUT_HPP_
 
 #include <espadin/user.hpp>
 #include <espadin/storage_quota.hpp>

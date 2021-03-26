@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_EXCEPTION_HPP__)
-#define ESPADIN_EXCEPTION_HPP__
+#if !defined(ESPADIN_EXCEPTION_HPP_)
+#define ESPADIN_EXCEPTION_HPP_
 
 #include <espadin/export.hpp>
 #include <exception>

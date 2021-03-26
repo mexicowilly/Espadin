@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_DRIVE_HPP__)
-#define ESPADIN_DRIVE_HPP__
+#if !defined(ESPADIN_DRIVE_HPP_)
+#define ESPADIN_DRIVE_HPP_
 
 #include <espadin/files_group.hpp>
 #include <espadin/about.hpp>

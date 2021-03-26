@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_DRIVE_THEME_HPP__)
-#define ESPADIN_DRIVE_THEME_HPP__
+#if !defined(ESPADIN_DRIVE_THEME_HPP_)
+#define ESPADIN_DRIVE_THEME_HPP_
 
 #include <espadin/export.hpp>
 #include <optional>

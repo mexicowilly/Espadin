@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_CALENDAR_HPP__)
-#define ESPADIN_CALENDAR_HPP__
+#if !defined(ESPADIN_CALENDAR_HPP_)
+#define ESPADIN_CALENDAR_HPP_
 
 #include <ctime>
 

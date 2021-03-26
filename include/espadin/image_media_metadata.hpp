@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_IMAGE_MEDIA_METADATA_HPP__)
-#define ESPADIN_IMAGE_MEDIA_METADATA_HPP__
+#if !defined(ESPADIN_IMAGE_MEDIA_METADATA_HPP_)
+#define ESPADIN_IMAGE_MEDIA_METADATA_HPP_
 
 #include <espadin/export.hpp>
 #include <string>

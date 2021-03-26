@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_FILE_HPP__)
-#define ESPADIN_FILE_HPP__
+#if !defined(ESPADIN_FILE_HPP_)
+#define ESPADIN_FILE_HPP_
 
 #include <espadin/user.hpp>
 #include <espadin/permission.hpp>

@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_BASE_TEST_HPP__)
-#define ESPADIN_BASE_TEST_HPP__
+#if !defined(ESPADIN_BASE_TEST_HPP_)
+#define ESPADIN_BASE_TEST_HPP_
 
 #include <espadin/drive.hpp>
 

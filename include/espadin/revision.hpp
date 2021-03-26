@@ -1,5 +1,5 @@
-#if !defined(ESPADING_REVISION_HPP__)
-#define ESPADING_REVISION_HPP__
+#if !defined(ESPADING_REVISION_HPP_)
+#define ESPADING_REVISION_HPP_
 
 #include <espadin/user.hpp>
 #include <chrono>

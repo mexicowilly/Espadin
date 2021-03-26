@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_COMMENTS_GROUP_HPP__)
-#define ESPADIN_COMMENTS_GROUP_HPP__
+#if !defined(ESPADIN_COMMENTS_GROUP_HPP_)
+#define ESPADIN_COMMENTS_GROUP_HPP_
 
 #include <espadin/comment.hpp>
 #include <memory>

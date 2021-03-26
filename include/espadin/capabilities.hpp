@@ -1,5 +1,5 @@
-#if !defined(ESPADING_CAPABILITIES_HPP__)
-#define ESPADING_CAPABILITIES_HPP__
+#if !defined(ESPADING_CAPABILITIES_HPP_)
+#define ESPADING_CAPABILITIES_HPP_
 
 #include <espadin/export.hpp>
 #include <optional>

@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_REPLY_HPP__)
-#define ESPADIN_REPLY_HPP__
+#if !defined(ESPADIN_REPLY_HPP_)
+#define ESPADIN_REPLY_HPP_
 
 #include <espadin/user.hpp>
 #include <chrono>

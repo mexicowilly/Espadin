@@ -1,5 +1,5 @@
-#if !defined(ESPADIN_CONTENT_HINTS_HPP__)
-#define ESPADIN_CONTENT_HINTS_HPP__
+#if !defined(ESPADIN_CONTENT_HINTS_HPP_)
+#define ESPADIN_CONTENT_HINTS_HPP_
 
 #include <espadin/export.hpp>
 #include <vector>

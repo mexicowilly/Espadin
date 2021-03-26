@@ -1,5 +1,5 @@
-#if !defined (ESPADIN_REQUEST_HPP__)
-#define ESPADIN_REQUEST_HPP__
+#if !defined (ESPADIN_REQUEST_HPP_)
+#define ESPADIN_REQUEST_HPP_
 
 #include "curl.hpp"
 #include <espadin/file.hpp>
